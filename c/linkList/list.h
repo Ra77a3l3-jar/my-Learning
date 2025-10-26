@@ -9,7 +9,7 @@ typedef struct Node{
 
 typedef struct Dnode {
     int data;
-    Dnode *next;
+    struct Dnode *next;
     struct Dnode *prev;
 } Dnode;
 
@@ -26,7 +26,7 @@ void removeNodeHead(Node **head);
 void removeNodeAtEnd(Node **head);
 void removeNodeValue(Node **head, int value);
 
-void sortNodesiIncreasingly(Node **head);
+void sortNodesIncreasingly(Node **head);
 void sortNodesDecreasingly(Node **head);
 
 void valueNodeSearch(Node **head, int value);
