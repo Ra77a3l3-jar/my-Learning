@@ -8,9 +8,7 @@ class LibraryItem {
         std::string title;
         int id;
         bool isCheckedOut;
-        int dueDate;
         int daysOverdue;
-        double dailyOverdueCost;
 
     public:
 
@@ -18,13 +16,11 @@ class LibraryItem {
             title = "Unknown";
             id = 0;
             isCheckedOut = false;
-            dueDate = 0;
             daysOverdue = 0;
-            dailyOverdueCost = 0.0;
         }
 
-        LibraryItem(std::string title, int id, bool check, int days, double cost) :
-            title(title), id(id), isCheckedOut(check), dueDate(days), dailyOverdueCost(cost) {}
+        LibraryItem(std::string title, int id) :
+            title(title), id(id) {}
 
         virtual ~LibraryItem();
 
@@ -40,7 +36,7 @@ class LibraryItem {
         }
 
         virtual double calculateLateFee() const {
-            return daysOverdue * dailyOverdueCost;
+            return daysOverdue * 0.30;
         }
 
         void checkout() {
@@ -59,9 +55,67 @@ class LibraryItem {
 
         int getID() const {
             return id;
-        }
+        }        
+};
 
+class Book : public LibraryItem {
+    private:
+        std::string author;
+        int pages;
+
+        public:
+            Book(std::string title, int id, std::string author, int pages) :
+                LibraryItem(title, id),
+                author(author), pages(pages) {}
+
+            void displayInfo() const override {
+                std::cout << "\n=== Book Info ===\n" << std::endl;
+                std::cout << "  The title is " << title << " and the author is " << author << std::endl;
+                std::cout << "  The books id is " << id << std::endl;
+                std::cout << "  The books is " << pages << " long" << std::endl;
+                if(isCheckedOut) {
+                    std::cout << "  The book is not avaible" << std::endl;
+                } else {
+                    std::cout << "  The book is avaible right now" << std::endl;
+                }    
+            }
+
+            double calculateLateFee() const override {
+                return daysOverdue * 0.50;
+            }
+};
+
+
+class Magazine : public LibraryItem {
+    private:
+        int issue_number;
+        std::string month;
+
+    public:
+
+        Magazine(std::string title, int id, int iss_num, std::string month) :
+            LibraryItem(title, id),
+            issue_number(iss_num), month(month) {}
         
+        double calculateLateFee() const override {
+            return daysOverdue * 0.25;
+        }
+};
+
+class DVD : public LibraryItem {
+    private:
+        int durationMinutes;
+        std::string director;
+
+    public:
+
+        DVD(std::string title, int id, int duration, std::string director) :
+            LibraryItem(title, id),
+            durationMinutes(duration), director(director) {}
+
+        double calculateLateFee() const override {
+            return daysOverdue * 1.00;
+        }
 };
 
 
