@@ -55,7 +55,11 @@ class LibraryItem {
 
         int getID() const {
             return id;
-        }        
+        }
+
+        std::string getTitle() const {
+            return title;
+        }
 };
 
 class Book : public LibraryItem {
@@ -118,7 +122,38 @@ class DVD : public LibraryItem {
         }
 };
 
+class Library {
+    private:
+        std::vector<LibraryItem*> items;
 
+    public:
+
+        void addItem(LibraryItem* item) {
+            /* TODO implement a window to choose wich item do we want to create (Librarie Item, Magazine, Book or a DVD) */ 
+        }
+
+        void displayAllItems() const {
+            for(int i = 0; i < items.size(); i++) {
+                items[i]->displayInfo();
+            }
+        }
+
+        void checkoutItemID(int id) {
+            for(int i = 0; i < items.size(); i++) {
+                if(items[i]->getID() == id) {
+                    items[i]->checkout();    
+                }
+            }
+        }
+
+        void checkoutItemTitle(std::string title) {
+            for(int i = 0; i < items.size(); i++) {
+                if(items[i]->getTitle() == title) {
+                    items[i]->checkout();
+                }
+            }
+        }
+};
 
 int main(void) {
     
