@@ -60,6 +60,10 @@ class LibraryItem {
         std::string getTitle() const {
             return title;
         }
+
+        void setDaysOverdue(int days) {
+            daysOverdue = days;
+        }
 };
 
 class Book : public LibraryItem {
@@ -129,7 +133,72 @@ class Library {
     public:
 
         void addItem(LibraryItem* item) {
-            /* TODO implement a window to choose wich item do we want to create (Librarie Item, Magazine, Book or a DVD) */ 
+
+            std::cout << "\n=== Add Item ===\n" << std::endl;
+
+            std::cout << "  1. add a book" << std::endl
+                      << "  2. add a magazine" << std::endl
+                      << "  3. add a DVD\n" << std::endl;
+
+            int choice = 0;
+            std::cout << "Enter wich item you want to add (1 - 3): " << std::endl;
+            std::cin >> choice;
+            
+            switch(choice) {
+                case 1: {
+                    std::string title, author;
+                    int id, pages;
+
+                    std::cout << "Title: " << std::endl;
+                    std::getline(std::cin, title);
+                    std::cout << "ID: " << std::endl;
+                    std::cin >> id;
+                    std::cout << "Author: " << std::endl;
+                    std::getline(std::cin, author);
+                    std::cout << "Pages: " << std::endl;
+                    std::cin >> pages;
+                    
+                    Book* newBook = new Book(title, id, author, pages);
+                    items.push_back(newBook);
+                    break;
+                    }
+                case 2: {
+                    std::string title, month;
+                    int id, issue;
+
+                    std::cout << "Title: " << std::endl;
+                    std::getline(std::cin, title);
+                    std::cout << "ID: " << std::endl;
+                    std::cin >> id;
+                    std::cout << "Month: " << std::endl;
+                    std::getline(std::cin, month);
+                    std::cout << "Issue number: " << std::endl;
+                    std::cin >> issue;
+
+                    Magazine* newMagazine = new Magazine(title, id, issue, month);
+                    items.push_back(newMagazine);
+                    break;
+                    }
+                case 3: {
+                    std::string title, director;
+                    int id, duration;
+
+                    std::cout << "Title: " << std::endl;
+                    std::getline(std::cin, title);
+                    std::cout << "ID: " << std::endl;
+                    std::cin >> id;
+                    std::cout << "Director: " << std::endl;
+                    std::getline(std::cin, director);
+                    std::cout << "Duration in minutes: " << std::endl;
+                    std::cin >> duration;
+
+                    DVD* newDVD = new DVD(title, id, duration, director);
+                    items.push_back(newDVD);
+                    break;
+                    }
+                default:
+                    std::cout << "Wrong input. Try again!" << std::endl;
+            }
         }
 
         void displayAllItems() const {
@@ -152,6 +221,30 @@ class Library {
                     items[i]->checkout();
                 }
             }
+        }
+
+        void returnItemID(int id, int daysLate) {
+            for(int i = 0; i < items.size(); i++) {
+                if(items[i]->getID() == id) {
+                    items[i]->returnItem();
+                    items[i]->setDaysOverdue(daysLate);
+                    double fee = items[i]->calculateLateFee();
+                }
+            }
+        }
+
+        void returnItemTitle(std::string title, int daysLate) {
+            for(int i = 0; i < items.size(); i++) {
+                if(items[i]->getTitle() == title) {
+                    items[i]->returnItem();
+                    items[i]->setDaysOverdue(daysLate);
+                    double fee = items[i]->calculateLateFee();
+                }
+            }
+        }
+
+        double getTotalLateFees() const {
+            
         }
 };
 
