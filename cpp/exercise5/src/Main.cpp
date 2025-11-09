@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-
+#include <limits>
 
 class LibraryItem {
     protected:
@@ -12,27 +12,19 @@ class LibraryItem {
 
     public:
 
-        LibraryItem() {
-            title = "Unknown";
-            id = 0;
-            isCheckedOut = false;
-            daysOverdue = 0;
-        }
+        LibraryItem()
+            : title("Unknown"), id(0), isCheckedOut(false), daysOverdue(0) {}
 
-        LibraryItem(std::string title, int id) :
-            title(title), id(id) {}
+        LibraryItem(std::string title, int id)
+            : title(std::move(title)), id(id), isCheckedOut(false), daysOverdue(0) {}
 
-        virtual ~LibraryItem();
+        virtual ~LibraryItem() {}
 
         virtual void displayInfo() const {
-            std::cout << "\n=== Book Info ===\n" << std::endl;
-            std::cout << "  The title is " << title << std::endl;
-            std::cout << "  The books id is " << id << std::endl;
-            if(isCheckedOut) {
-                std::cout << "  The book is not avaible" << std::endl;
-            } else {
-                std::cout << "  The book is avaible right now" << std::endl;
-            }
+            std::cout << "\n=== Item Info ===\n";
+            std::cout << "  Title: " << title << "\n";
+            std::cout << "  ID: " << id << "\n";
+            std::cout << "  Available: " << (isAvailable() ? "yes" : "no") << "\n";
         }
 
         virtual double calculateLateFee() const {
@@ -40,25 +32,29 @@ class LibraryItem {
         }
 
         void checkout() {
-            std::cout << "\n=== Renting " << title << " ===\n" << std::endl;
-            isCheckedOut = true;
+            if (!isCheckedOut) {
+                std::cout << "\n=== Checking out: " << title << " ===\n";
+                isCheckedOut = true;
+            } else {
+                std::cout << "Item '" << title << "' is already checked out.\n";
+            }
         }
 
         void returnItem() {
-            std::cout << "\n=== Returning " << title << " ===\n" << std::endl;
-            isCheckedOut = false;
+            if (isCheckedOut) {
+                std::cout << "\n=== Returning: " << title << " ===\n";
+                isCheckedOut = false;
+            } else {
+                std::cout << "Item '" << title << "' was not checked out.\n";
+            }
         }
 
-        bool isAvaible() const {
-            return isCheckedOut;
+        bool isAvailable() const {
+            return !isCheckedOut;
         }
 
         int getID() const {
             return id;
-        }
-
-        std::string getTitle() const {
-            return title;
         }
 
         void setDaysOverdue(int days) {
@@ -71,28 +67,23 @@ class Book : public LibraryItem {
         std::string author;
         int pages;
 
-        public:
-            Book(std::string title, int id, std::string author, int pages) :
-                LibraryItem(title, id),
-                author(author), pages(pages) {}
+    public:
+        Book(std::string title, int id, std::string author, int pages)
+            : LibraryItem(std::move(title), id), author(std::move(author)), pages(pages) {}
 
-            void displayInfo() const override {
-                std::cout << "\n=== Book Info ===\n" << std::endl;
-                std::cout << "  The title is " << title << " and the author is " << author << std::endl;
-                std::cout << "  The books id is " << id << std::endl;
-                std::cout << "  The books is " << pages << " long" << std::endl;
-                if(isCheckedOut) {
-                    std::cout << "  The book is not avaible" << std::endl;
-                } else {
-                    std::cout << "  The book is avaible right now" << std::endl;
-                }    
-            }
+        void displayInfo() const override {
+            std::cout << "\n=== Book ===\n";
+            std::cout << "  Title: " << title << "\n";
+            std::cout << "  Author: " << author << "\n";
+            std::cout << "  ID: " << id << "\n";
+            std::cout << "  Pages: " << pages << "\n";
+            std::cout << "  Available: " << (isAvailable() ? "yes" : "no") << "\n";
+        }
 
-            double calculateLateFee() const override {
-                return daysOverdue * 0.50;
-            }
+        double calculateLateFee() const override {
+            return daysOverdue * 0.50;
+        }
 };
-
 
 class Magazine : public LibraryItem {
     private:
@@ -100,11 +91,17 @@ class Magazine : public LibraryItem {
         std::string month;
 
     public:
+        Magazine(std::string title, int id, int iss_num, std::string month)
+            : LibraryItem(std::move(title), id), issue_number(iss_num), month(std::move(month)) {}
 
-        Magazine(std::string title, int id, int iss_num, std::string month) :
-            LibraryItem(title, id),
-            issue_number(iss_num), month(month) {}
-        
+        void displayInfo() const override {
+            std::cout << "\n=== Magazine ===\n";
+            std::cout << "  Title: " << title << "\n";
+            std::cout << "  Issue: " << issue_number << " (" << month << ")\n";
+            std::cout << "  ID: " << id << "\n";
+            std::cout << "  Available: " << (isAvailable() ? "yes" : "no") << "\n";
+        }
+
         double calculateLateFee() const override {
             return daysOverdue * 0.25;
         }
@@ -116,10 +113,17 @@ class DVD : public LibraryItem {
         std::string director;
 
     public:
+        DVD(std::string title, int id, int duration, std::string director)
+            : LibraryItem(std::move(title), id), durationMinutes(duration), director(std::move(director)) {}
 
-        DVD(std::string title, int id, int duration, std::string director) :
-            LibraryItem(title, id),
-            durationMinutes(duration), director(director) {}
+        void displayInfo() const override {
+            std::cout << "\n=== DVD ===\n";
+            std::cout << "  Title: " << title << "\n";
+            std::cout << "  Director: " << director << "\n";
+            std::cout << "  Duration: " << durationMinutes << " min\n";
+            std::cout << "  ID: " << id << "\n";
+            std::cout << "  Available: " << (isAvailable() ? "yes" : "no") << "\n";
+        }
 
         double calculateLateFee() const override {
             return daysOverdue * 1.00;
@@ -131,123 +135,96 @@ class Library {
         std::vector<LibraryItem*> items;
 
     public:
-
+        // Add an already-created item
         void addItem(LibraryItem* item) {
+            items.push_back(item);
+        }
 
-            std::cout << "\n=== Add Item ===\n" << std::endl;
-
-            std::cout << "  1. add a book" << std::endl
-                      << "  2. add a magazine" << std::endl
-                      << "  3. add a DVD\n" << std::endl;
+        // Interactive way to create and add items
+        void addItemInteractive() {
+            std::cout << "\n=== Add Item ===\n";
+            std::cout << "  1. Book\n  2. Magazine\n  3. DVD\n";
+            std::cout << "Choose type (1-3): ";
 
             int choice = 0;
-            std::cout << "Enter wich item you want to add (1 - 3): " << std::endl;
-            std::cin >> choice;
-            
-            switch(choice) {
-                case 1: {
-                    std::string title, author;
-                    int id, pages;
+            if (!(std::cin >> choice)) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Invalid input.\n";
+                return;
+            }
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-                    std::cout << "Title: " << std::endl;
-                    std::getline(std::cin, title);
-                    std::cout << "ID: " << std::endl;
-                    std::cin >> id;
-                    std::cout << "Author: " << std::endl;
-                    std::getline(std::cin, author);
-                    std::cout << "Pages: " << std::endl;
-                    std::cin >> pages;
-                    
-                    Book* newBook = new Book(title, id, author, pages);
-                    items.push_back(newBook);
-                    break;
-                    }
-                case 2: {
-                    std::string title, month;
-                    int id, issue;
-
-                    std::cout << "Title: " << std::endl;
-                    std::getline(std::cin, title);
-                    std::cout << "ID: " << std::endl;
-                    std::cin >> id;
-                    std::cout << "Month: " << std::endl;
-                    std::getline(std::cin, month);
-                    std::cout << "Issue number: " << std::endl;
-                    std::cin >> issue;
-
-                    Magazine* newMagazine = new Magazine(title, id, issue, month);
-                    items.push_back(newMagazine);
-                    break;
-                    }
-                case 3: {
-                    std::string title, director;
-                    int id, duration;
-
-                    std::cout << "Title: " << std::endl;
-                    std::getline(std::cin, title);
-                    std::cout << "ID: " << std::endl;
-                    std::cin >> id;
-                    std::cout << "Director: " << std::endl;
-                    std::getline(std::cin, director);
-                    std::cout << "Duration in minutes: " << std::endl;
-                    std::cin >> duration;
-
-                    DVD* newDVD = new DVD(title, id, duration, director);
-                    items.push_back(newDVD);
-                    break;
-                    }
-                default:
-                    std::cout << "Wrong input. Try again!" << std::endl;
+            if (choice == 1) {
+                std::string title, author;
+                int id, pages;
+                std::cout << "Title: "; std::getline(std::cin, title);
+                std::cout << "ID: "; std::cin >> id; std::cin.ignore();
+                std::cout << "Author: "; std::getline(std::cin, author);
+                std::cout << "Pages: "; std::cin >> pages; std::cin.ignore();
+                addItem(new Book(title, id, author, pages));
+            } else if (choice == 2) {
+                std::string title, month;
+                int id, issue;
+                std::cout << "Title: "; std::getline(std::cin, title);
+                std::cout << "ID: "; std::cin >> id; std::cin.ignore();
+                std::cout << "Month: "; std::getline(std::cin, month);
+                std::cout << "Issue number: "; std::cin >> issue; std::cin.ignore();
+                addItem(new Magazine(title, id, issue, month));
+            } else if (choice == 3) {
+                std::string title, director;
+                int id, duration;
+                std::cout << "Title: "; std::getline(std::cin, title);
+                std::cout << "ID: "; std::cin >> id; std::cin.ignore();
+                std::cout << "Director: "; std::getline(std::cin, director);
+                std::cout << "Duration in minutes: "; std::cin >> duration; std::cin.ignore();
+                addItem(new DVD(title, id, duration, director));
+            } else {
+                std::cout << "Invalid choice.\n";
             }
         }
 
         void displayAllItems() const {
-            for(int i = 0; i < items.size(); i++) {
-                items[i]->displayInfo();
+            if (items.empty()) {
+                std::cout << "No items in the library.\n";
+                return;
             }
+            for (auto* it : items) it->displayInfo();
         }
 
         void checkoutItemID(int id) {
-            for(int i = 0; i < items.size(); i++) {
-                if(items[i]->getID() == id) {
-                    items[i]->checkout();    
+            for (auto* it : items) {
+                if (it->getID() == id) {
+                    it->checkout();
+                    return;
                 }
             }
-        }
-
-        void checkoutItemTitle(std::string title) {
-            for(int i = 0; i < items.size(); i++) {
-                if(items[i]->getTitle() == title) {
-                    items[i]->checkout();
-                }
-            }
+            std::cout << "Item with ID " << id << " not found.\n";
         }
 
         void returnItemID(int id, int daysLate) {
-            for(int i = 0; i < items.size(); i++) {
-                if(items[i]->getID() == id) {
-                    items[i]->returnItem();
-                    items[i]->setDaysOverdue(daysLate);
-                    double fee = items[i]->calculateLateFee();
+            for (auto* it : items) {
+                if (it->getID() == id) {
+                    it->returnItem();
+                    it->setDaysOverdue(daysLate);
+                    double fee = it->calculateLateFee();
+                    std::cout << "Late fee: " << fee << "\n";
+                    return;
                 }
             }
-        }
-
-        void returnItemTitle(std::string title, int daysLate) {
-            for(int i = 0; i < items.size(); i++) {
-                if(items[i]->getTitle() == title) {
-                    items[i]->returnItem();
-                    items[i]->setDaysOverdue(daysLate);
-                    double fee = items[i]->calculateLateFee();
-                }
-            }
+            std::cout << "Item with ID " << id << " not found.\n";
         }
 
         double getTotalLateFees() const {
-            
+            double total = 0.0;
+            for (auto* it : items) {
+                // assume daysOverdue is set only for returned items in this simple model
+                total += it->calculateLateFee();
+            }
+            return total;
+        }
+
+        ~Library() {
+            for (auto* it : items) delete it;
         }
 };
-
-int main(void) {
-    
-}
