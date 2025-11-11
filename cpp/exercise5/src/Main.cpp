@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <limits>
+#include <algorithm>
 
 class LibraryItem {
     protected:
@@ -228,3 +229,98 @@ class Library {
             for (auto* it : items) delete it;
         }
 };
+
+
+class User {
+    protected:
+        std::vector<int> ids;
+        std::string name;
+        double fees;
+
+    public:
+
+        User()
+            : name("Unknown"), fees(0.0) {}
+
+        User(std::string name, double fees)
+            : name(name), fees(fees) {}
+
+        ~User() {}
+
+        void checkoutItem(int id) {
+            ids.push_back(id);
+        }
+
+        void returnItem(int id) {
+            ids.erase(std::remove(ids.begin(), ids.end(), id), ids.end());
+        }
+
+        void setFees(double new_fees) {
+            fees = new_fees;
+        }
+};
+
+int main(void) {
+    
+    Library lib;
+    User client;
+
+    Book* Montecristo = new Book("Conte di Monte Cristo", 4521, "Andre` Dumas", 1436);
+    Book* TheHoundOfTheBaskervilles = new Book("The Hound of the Baskervilles", 5732, "Sir Arthur Conan Doyle", 256);
+    Magazine* LaManoRossa = new Magazine("Tex Willer, La mano rossa", 8234, 1, "November");
+    Magazine* LaCittaCorotta = new Magazine("Tex Willer, La citta corotta", 9234, 322, "September");
+    DVD* IronMan = new DVD("Iron Man", 8342, 126, "Jon Favreau");
+
+    // Default items
+    lib.addItem(Montecristo);
+    lib.addItem(TheHoundOfTheBaskervilles);
+    lib.addItem(LaManoRossa);
+    lib.addItem(LaCittaCorotta);
+    lib.addItem(IronMan);
+
+    int choice = 0;
+
+    while(true) {
+        std::cout << "1. Add new item\n" << "2. display all items\n" << "3. checkout an item" << "4. return an item" << "5. get all late fees\n" << "6. Exit\n" << std::endl;
+        std::cin >> choice; std::cin.ignore();
+
+        switch(choice) {
+            case 1: {
+                    lib.addItemInteractive();
+                    break;
+                }
+            case 2: {
+                    lib.displayAllItems();
+                    break;
+                }
+            case 3: {
+                    int id;
+                    std::cout << "Enter id for the item to check out: ";
+                    std::cin >> id; std::cin.ignore();
+                    lib.checkoutItemID(id);
+                    client.checkoutItem(id);
+                    break;
+                }
+            case 4: {
+                    int id, daysLate;
+                    std::cout << "Enter the id for the item to return: ";
+                    std::cin >> id; std::cin.ignore();
+                    std::cout << "How many days are you late for returning the item: ";
+                    std::cin >> daysLate; std::cin.ignore();
+                    lib.returnItemID(id, daysLate);
+                    client.returnItem(id);
+                    break;
+                }
+            case 5: {
+                    double fees = lib.getTotalLateFees();
+                    client.setFees(fees);
+                    break;
+                }
+            case 6: {
+                    std::cout << "Exiting ..." << std::endl;
+                    exit(0);
+                }
+        }
+    }
+    
+}
