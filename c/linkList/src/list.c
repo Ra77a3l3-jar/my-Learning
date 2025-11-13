@@ -256,6 +256,54 @@ Node *mergeNodeList(Node **head1, Node **head2) {
     return head;
 }
 
+void splitNodeList(Node **origin, Node **slice1, Node **slice2) {
+    // empty list
+    if(*origin == NULL) {
+        *slice1 = NULL;
+        *slice2 = NULL;
+    }
+    
+    // finding lenght of origin list
+    Node *current = *origin;
+    int len = 0;
+    while(current != NULL) {
+        len += 1;
+        current = current->next;
+    }
+
+    int middle = len / 2;
+
+    // travers till the middle
+    Node *prev = NULL;
+    current = *origin;
+    for(int i = 0; i < middle; i++) {
+        prev = current;
+        current = current->next;
+    }
+
+    *slice1 = *origin;
+    *slice2 = current;
+
+    // this truncates the first slice
+    if(prev != NULL) {
+        prev->next = NULL;
+    }
+
+    *origin = NULL;
+}
+
+void clearNode(Node **head) {
+    if(*head == NULL) {
+        printf("The list is empty.\n");
+        return;
+    }
+
+    // recursive giving in input the next ptr
+    clearNode(&(*head)->next);
+    free(*head);
+    *head = NULL;
+} 
+
 void printNode(Node **head) {
     Node *current = *head;
 
