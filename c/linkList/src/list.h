@@ -31,7 +31,7 @@ void sortNodesDecreasingly(Node **head);
 
 void valueNodeSearch(Node **head, int value);
 
-void mergeNodeList(Node **head1, Node **head2);
+Node *mergeNodeList(Node **head1, Node **head2);
 void splitNodeList(Node **origin, Node **slice1, Node **slice2);
 
 void clearNode(Node **head);

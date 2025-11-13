@@ -161,3 +161,108 @@ void sortNodesIncreasingly(Node **head) {
         }
     } while (swapped);
 }
+
+void sortNodesDecreasingly(Node **head) {
+    if (*head == NULL || (*head)->next == NULL) {
+        return; // Empty list or single node, already sorted
+    }
+    
+    int swapped;
+    Node **current;
+    Node *temp;
+    
+    do {
+        swapped = 0;
+        current = head;
+        
+        while (*current != NULL && (*current)->next != NULL) {
+            if ((*current)->data < (*current)->next->data) {
+                // Swap the nodes
+                temp = (*current)->next;
+                (*current)->next = temp->next;
+                temp->next = *current;
+                *current = temp;
+                
+                swapped = 1;
+            }
+            current = &((*current)->next);
+        }
+    } while (swapped);
+}
+
+
+void valueNodeSearch(Node **head, int value) {
+    Node *current = *head;
+
+    if(*head == NULL) {
+        printf("The list is empty.\n");
+        return;
+    }
+
+    while(current->next != NULL) {
+        if(current->data != value) {
+            current = current->next;
+        } else {
+            printf("We found %d in the list.\n", value);
+            break;
+        }
+    }
+    printf("There is no %d in the list.\n", value);
+}
+
+Node *mergeNodeList(Node **head1, Node **head2) {
+    Node *head = NULL;
+    Node *h = NULL;     // moving ptr
+
+    while (*head1 != NULL && *head2 != NULL) {
+        if ((*head1)->data <= (*head2)->data) {
+            if (h == NULL) {
+                // first node
+                head = *head1;
+                h = *head1;
+            } else {
+                h->next = *head1;
+                h = h->next;
+            }
+            *head1 = (*head1)->next;
+        } else {
+            if (h == NULL) {
+                // first node
+                head = *head2;
+                h = *head2;
+            } else {
+                h->next = *head2;
+                h = h->next;
+            }
+            *head2 = (*head2)->next;
+        }
+    }
+
+    // adding the rest
+    if (*head1 != NULL) {
+        if (h == NULL) {
+            head = *head1;
+        } else {
+            h->next = *head1;
+        }
+    } else if (*head2 != NULL) {
+        if (h == NULL) {
+            head = *head2;
+        } else {
+            h->next = *head2;
+        }
+    }
+
+    return head;
+}
+
+void printNode(Node **head) {
+    Node *current = *head;
+
+    while(current->next != NULL) {
+        printf(" %d ->", current->data);
+        current = current->next;
+    }
+    current = current->next;
+    printf( " %d -> NULL", current->data);
+}
