@@ -314,3 +314,74 @@ void printNode(Node **head) {
     current = current->next;
     printf( " %d -> NULL", current->data);
 }
+
+Dnode *initDnode(int data) {
+    Dnode *new_node = malloc(sizeof(Dnode));
+    if(new_node == NULL) {
+        printf("Memory allocation failed.\n");
+        return NULL;
+    }
+
+    new_node->data = data;
+    new_node->prev = NULL;
+    new_node->next = NULL;
+
+    return new_node;
+}
+
+void addDNode(Dnode **head, int data) {
+    Dnode *new_node = malloc(sizeof(Dnode));
+    if(new_node == NULL) {
+        printf("Memory allocation failed.\n");
+        return;
+    }
+
+    new_node->data = data;
+
+    // case head does not exist
+    if(*head == NULL) {
+        *head = new_node;
+        (*head)->prev = NULL;
+        (*head)->next = NULL;
+        return;
+    }
+
+    Dnode *current = *head;
+    while(current->next != NULL) {
+        current = current->next;
+    }
+    current->next = new_node;
+    new_node->prev = current;
+    new_node->next = NULL;
+}
+
+void addDNodeAtPosition(Dnode **head, int data, int position) {
+    Dnode *new_node = malloc(sizeof(Dnode));
+    if(new_node == NULL) {
+        printf("Memory allocation failed.\n");
+        return;
+    }
+
+    new_node->data = data;
+
+    if (*head == NULL || position == 0) {
+        new_node->next = *head;
+        if (*head != NULL) {
+            (*head)->prev = new_node;
+        }
+        *head = new_node;
+        return;
+    }
+
+    int i = 0;
+    Dnode *current = *head;
+    while (current->next != NULL && i < position - 1) {
+        current = current->next;
+        i++;
+    }
+
+    new_node->next = current->next;
+    if (current->next != NULL) current->next->prev = new_node;
+    current->next = new_node;
+    new_node->prev = current;
+}
