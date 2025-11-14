@@ -418,6 +418,79 @@ void addDNodeSorted(Dnode **head, int data) {
     }
 
     new_node->data =data;
+
+    // no head
+    if(*head == NULL) {
+        *head = new_node;
+        new_node->prev = NULL;
+        new_node->next = NULL;
+        return;
+    }
+
+    // if the data of the first node is bigger than the data in the second node
+    if(data < (*head)->data) {
+        new_node->next = *head;
+        (*head)->prev = new_node;
+        *head = new_node;
+        return;
+    }
+
+    // find the correct position in the middle or end
+    Dnode *current = *head;
+    while(current->next != NULL && current->next->data < data) {
+        current = current->next;
+    }
+
+    // insert new_node after current
+    new_node->next = current->next;
+    new_node->prev = current;
+
+    if(current->next != NULL) {
+        current->next->prev = new_node;
+    }
+    current->next = new_node;
+}
+
+void removeDNodeHead(Dnode **head) {
+    if(*head == NULL) {
+        printf("List empty.\n");
+        return;
+    }
+
+    Dnode *tmp = *head;
+    *head = (*head)->next;
+
+    if(*head != NULL) {
+        (*head)->prev = NULL;
+    }
+
+    free(tmp);
+}
+
+void removeDNodeAtEnd(Dnode **head) {
+    Dnode *current = *head;
+    while(current->next->next != NULL) {
+        current = current->next;
+    }
+    current->next = NULL;
+}
+
+void removeDNodeValue(Dnode **head, int value) {
+    Dnode *tmp = *head;
+
+    // if head has the value
+    if((*head)->data == value) {
+        *head = (*head)->next;
+        (*head)->prev = NULL;
+        free(tmp);
+    }
+
+    Dnode *current = *head;
+    while(current->next != NULL && current->next->data != value) {
+        current = current->next;
+    }
+    current->next = current->next->next;
+    current->next->prev = current;
 }
 
 void sortDoublyIncreasingly(Dnode **head) {
