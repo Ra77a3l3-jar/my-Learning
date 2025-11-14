@@ -5,7 +5,7 @@
 
 Node* initNode(int data) {
     Node *new_node = malloc(sizeof(Node));
-    if(!new_node) {
+    if(new_node == NULL) {
         printf("Memory allocation failed!\n");
         return NULL;
     }
@@ -18,7 +18,7 @@ Node* initNode(int data) {
 
 void addNode(Node **head, int data) {
     Node *new_node = malloc(sizeof(Node));
-    if(!new_node) {
+    if(new_node == NULL) {
         printf("Memory allocation failed!\n");
         free(new_node);
         return;
@@ -40,7 +40,7 @@ void addNode(Node **head, int data) {
 
 void addNodeAtPosition(Node **head, int data, int position) {
     Node *new_node = malloc(sizeof(Node));
-    if(!new_node) {
+    if(new_node == NULL) {
         printf("Memory allocation failed!\n");
         free(new_node);
         return;
@@ -66,7 +66,7 @@ void addNodeAtPosition(Node **head, int data, int position) {
 
 void addNodeAtHead(Node **head, int data) {
     Node *new_node = malloc(sizeof(Node));
-    if(!new_node) {
+    if(new_node == NULL) {
         printf("Memory allocation failed!\n");
         free(new_node);
         return;
@@ -79,7 +79,7 @@ void addNodeAtHead(Node **head, int data) {
 
 void addNodeSorted(Node **head, int data) {
     Node *new_node = malloc(sizeof(Node));
-    if(!new_node) {
+    if(new_node == NULL) {
         printf("Memory allocation failed!\n");
         free(new_node);
         return;
@@ -135,7 +135,7 @@ void removeNodeValue(Node **head, int value) {
 }
 
 void sortNodesIncreasingly(Node **head) {
-    if (*head == NULL || (*head)->next == NULL) {
+    if(*head == NULL || (*head)->next == NULL) {
         return; // Empty list or single node, already sorted
     }
     
@@ -147,8 +147,8 @@ void sortNodesIncreasingly(Node **head) {
         swapped = 0;
         current = head;
         
-        while (*current != NULL && (*current)->next != NULL) {
-            if ((*current)->data > (*current)->next->data) {
+        while(*current != NULL && (*current)->next != NULL) {
+            if((*current)->data > (*current)->next->data) {
                 // Swap the nodes
                 temp = (*current)->next;
                 (*current)->next = temp->next;
@@ -163,7 +163,7 @@ void sortNodesIncreasingly(Node **head) {
 }
 
 void sortNodesDecreasingly(Node **head) {
-    if (*head == NULL || (*head)->next == NULL) {
+    if(*head == NULL || (*head)->next == NULL) {
         return; // Empty list or single node, already sorted
     }
     
@@ -175,8 +175,8 @@ void sortNodesDecreasingly(Node **head) {
         swapped = 0;
         current = head;
         
-        while (*current != NULL && (*current)->next != NULL) {
-            if ((*current)->data < (*current)->next->data) {
+        while(*current != NULL && (*current)->next != NULL) {
+            if((*current)->data < (*current)->next->data) {
                 // Swap the nodes
                 temp = (*current)->next;
                 (*current)->next = temp->next;
@@ -214,9 +214,9 @@ Node *mergeNodeList(Node **head1, Node **head2) {
     Node *head = NULL;
     Node *h = NULL;     // moving ptr
 
-    while (*head1 != NULL && *head2 != NULL) {
-        if ((*head1)->data <= (*head2)->data) {
-            if (h == NULL) {
+    while(*head1 != NULL && *head2 != NULL) {
+        if((*head1)->data <= (*head2)->data) {
+            if(h == NULL) {
                 // first node
                 head = *head1;
                 h = *head1;
@@ -226,7 +226,7 @@ Node *mergeNodeList(Node **head1, Node **head2) {
             }
             *head1 = (*head1)->next;
         } else {
-            if (h == NULL) {
+            if(h == NULL) {
                 // first node
                 head = *head2;
                 h = *head2;
@@ -239,14 +239,14 @@ Node *mergeNodeList(Node **head1, Node **head2) {
     }
 
     // adding the rest
-    if (*head1 != NULL) {
-        if (h == NULL) {
+    if(*head1 != NULL) {
+        if(h == NULL) {
             head = *head1;
         } else {
             h->next = *head1;
         }
-    } else if (*head2 != NULL) {
-        if (h == NULL) {
+    } else if(*head2 != NULL) {
+        if(h == NULL) {
             head = *head2;
         } else {
             h->next = *head2;
@@ -364,7 +364,7 @@ void addDNodeAtPosition(Dnode **head, int data, int position) {
 
     new_node->data = data;
 
-    if (*head == NULL || position == 0) {
+    if(*head == NULL || position == 0) {
         new_node->next = *head;
         if (*head != NULL) {
             (*head)->prev = new_node;
@@ -375,13 +375,139 @@ void addDNodeAtPosition(Dnode **head, int data, int position) {
 
     int i = 0;
     Dnode *current = *head;
-    while (current->next != NULL && i < position - 1) {
+    while(current->next != NULL && i < position - 1) {
         current = current->next;
         i++;
     }
 
     new_node->next = current->next;
-    if (current->next != NULL) current->next->prev = new_node;
+    if(current->next != NULL) {
+        current->next->prev = new_node;
+    }
     current->next = new_node;
     new_node->prev = current;
+}
+
+void addDNodeAtHead(Dnode **head, int data) {
+    Dnode *new_node = malloc(sizeof(Dnode));
+    if(new_node == NULL) {
+        printf("Memory allocation failed.\n");
+        return;
+    }
+
+    new_node->data = data;
+
+    // case there is no head
+    if(*head == NULL) {
+        *head = new_node;
+        new_node->next = NULL;
+        new_node->prev = NULL;
+        return;
+    }
+
+    new_node->prev = NULL;
+    new_node->next = *head;
+    *head = new_node;
+}
+
+void addDNodeSorted(Dnode **head, int data) {
+    Dnode *new_node = malloc(sizeof(Dnode));
+    if(new_node == NULL) {
+        printf("Memory allocation failed.\n");
+        return;
+    }
+
+    new_node->data =data;
+}
+
+void sortDoublyIncreasingly(Dnode **head) {
+    if(*head == NULL || (*head)->next == NULL)
+        return;
+
+    int swapped;
+
+    do {
+        swapped = 0;
+        Dnode *current = *head;
+
+        while(current->next != NULL) {
+
+            // if the current data is bigger than the data in the next node
+            if(current->data > current->next->data) {
+                // swap current and next
+
+                Dnode *next = current->next;
+
+                // node position swap
+                // fix pointers before swap
+                if(current->prev) {
+                    current->prev->next = next;
+                } else {
+                    *head = next;   // swapping the head
+                }
+        
+                if(next->next) {
+                    next->next->prev = current;
+                }
+                
+                // doing the swap of previus pointers
+                next->prev = current->prev;
+                current->prev = next;
+
+                // swap of next pointers
+                current->next = next->next;
+                next->next = current;
+
+                swapped = 1;
+            } else {
+                current = current->next;
+            }
+        }
+    } while(swapped);
+}
+
+void sortDNodeDecreasingly(Dnode **head) {
+    if(*head == NULL || (*head)->next == NULL)
+        return;
+
+    int swapped;
+
+    do {
+        swapped = 0;
+        Dnode *current = *head;
+
+        while(current->next != NULL) {
+
+            // if the current data is bigger than the data in the next node
+            if(current->data < current->next->data) {
+                // swap current and next
+
+                Dnode *next = current->next;
+
+                // node position swap
+                // fix pointers before swap
+                if(current->prev) {
+                    current->prev->next = next;
+                } else {
+                    *head = next;   // swapping the head
+                }
+        
+                if(next->next) {
+                    next->next->prev = current;
+                }
+                
+                // doing the swap of previus pointers
+                next->prev = current->prev;
+                current->prev = next;
+
+                // swap of next pointers
+                current->next = next->next;
+                next->next = current;
+
+                swapped = 1;
+            } else {
+                current = current->next;
+            }
+        }
+    } while(swapped);
 }
