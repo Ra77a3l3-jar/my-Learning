@@ -20,7 +20,6 @@ void addNode(Node **head, int data) {
     Node *new_node = malloc(sizeof(Node));
     if(new_node == NULL) {
         printf("Memory allocation failed!\n");
-        free(new_node);
         return;
     }
     new_node->data = data;
@@ -42,24 +41,25 @@ void addNodeAtPosition(Node **head, int data, int position) {
     Node *new_node = malloc(sizeof(Node));
     if(new_node == NULL) {
         printf("Memory allocation failed!\n");
-        free(new_node);
         return;
     }
-    new_node->data  = data;
+    new_node->data = data;
 
-    if(*head == NULL) {
+    // Insert at head
+    if(position == 0 || *head == NULL) {
+        new_node->next = *head;
         *head = new_node;
-        new_node->next = NULL;
         return;
     }
 
-    // If the list has atleas one node
+    // Traverse to position-1
     Node *current = *head;
     int posCount = 0;
-    while(posCount == position-1 || current->next != NULL) {
+    while(posCount < position - 1 && current->next != NULL) {
         current = current->next;
-        posCount += 1;
+        posCount++;
     }
+    
     new_node->next = current->next;
     current->next = new_node;
 }
@@ -68,7 +68,6 @@ void addNodeAtHead(Node **head, int data) {
     Node *new_node = malloc(sizeof(Node));
     if(new_node == NULL) {
         printf("Memory allocation failed!\n");
-        free(new_node);
         return;
     }
 
@@ -81,43 +80,84 @@ void addNodeSorted(Node **head, int data) {
     Node *new_node = malloc(sizeof(Node));
     if(new_node == NULL) {
         printf("Memory allocation failed!\n");
-        free(new_node);
         return;
     }
 
     new_node->data = data;
 
-    // Now has to check and sort the list and place the node in the right spot
-    sortNodesIncreasingly(head);
+    // Empty list or insert at head
+    if(*head == NULL || (*head)->data >= data) {
+        new_node->next = *head;
+        *head = new_node;
+        return;
+    }
+
+    // Find the correct position
     Node *current = *head;
-    while(current->next != NULL || (current->data < data && current->next->data > data)) {
+    while(current->next != NULL && current->next->data < data) {
         current = current->next;
     }
+    
     new_node->next = current->next;
     current->next = new_node;
 }
 
 void removeNodeAtPosition(Node **head, int position) {
-    // Remove head
-    if(position == 0) {
-        *head = (*head)->next;
+    if(*head == NULL) {
+        printf("List is empty.\n");
         return;
     }
 
+    // Remove head
+    if(position == 0) {
+        Node *temp = *head;
+        *head = (*head)->next;
+        free(temp);
+        return;
+    }
+
+    // Traverse to position-1
     int posCount = 0;
     Node *current = *head;
-    while(posCount == position - 1 || current->next != NULL) {
+    while(posCount < position - 1 && current->next != NULL) {
         current = current->next;
-        posCount += 1;
+        posCount++;
     }
+    
+    if(current->next == NULL) {
+        printf("Position out of bounds.\n");
+        return;
+    }
+    
+    Node *temp = current->next;
     current->next = current->next->next;
+    free(temp);
 }
 
 void removeNodeHead(Node **head) {
+    if(*head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+    
+    Node *temp = *head;
     *head = (*head)->next;
+    free(temp);
 }
 
 void removeNodeAtEnd(Node **head) {
+    if(*head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+    
+    // Only one node
+    if((*head)->next == NULL) {
+        free(*head);
+        *head = NULL;
+        return;
+    }
+    
     Node *current = *head;
     while(current->next->next != NULL) {
         current = current->next;
@@ -127,11 +167,32 @@ void removeNodeAtEnd(Node **head) {
 }
 
 void removeNodeValue(Node **head, int value) {
+    if(*head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+    
+    // Value is at head
+    if((*head)->data == value) {
+        Node *temp = *head;
+        *head = (*head)->next;
+        free(temp);
+        return;
+    }
+    
     Node *current = *head;
-    while(current->next != NULL || current->data != value) {
+    while(current->next != NULL && current->next->data != value) {
         current = current->next;
     }
+    
+    if(current->next == NULL) {
+        printf("Value %d not found in list.\n", value);
+        return;
+    }
+    
+    Node *temp = current->next;
     current->next = current->next->next;
+    free(temp);
 }
 
 void sortNodesIncreasingly(Node **head) {
@@ -159,7 +220,7 @@ void sortNodesIncreasingly(Node **head) {
             }
             current = &((*current)->next);
         }
-    } while (swapped);
+    } while(swapped);
 }
 
 void sortNodesDecreasingly(Node **head) {
@@ -187,37 +248,35 @@ void sortNodesDecreasingly(Node **head) {
             }
             current = &((*current)->next);
         }
-    } while (swapped);
+    } while(swapped);
 }
 
-
 void valueNodeSearch(Node **head, int value) {
-    Node *current = *head;
-
     if(*head == NULL) {
         printf("The list is empty.\n");
         return;
     }
 
-    while(current->next != NULL) {
-        if(current->data != value) {
-            current = current->next;
-        } else {
+    Node *current = *head;
+    while(current != NULL) {
+        if(current->data == value) {
             printf("We found %d in the list.\n", value);
-            break;
+            return;
         }
+        current = current->next;
     }
+    
     printf("There is no %d in the list.\n", value);
 }
 
 Node *mergeNodeList(Node **head1, Node **head2) {
     Node *head = NULL;
-    Node *h = NULL;     // moving ptr
+    Node *h = NULL;     // Moving ptr
 
     while(*head1 != NULL && *head2 != NULL) {
         if((*head1)->data <= (*head2)->data) {
             if(h == NULL) {
-                // first node
+                // First node
                 head = *head1;
                 h = *head1;
             } else {
@@ -227,7 +286,7 @@ Node *mergeNodeList(Node **head1, Node **head2) {
             *head1 = (*head1)->next;
         } else {
             if(h == NULL) {
-                // first node
+                // First node
                 head = *head2;
                 h = *head2;
             } else {
@@ -238,7 +297,7 @@ Node *mergeNodeList(Node **head1, Node **head2) {
         }
     }
 
-    // adding the rest
+    // Adding the rest
     if(*head1 != NULL) {
         if(h == NULL) {
             head = *head1;
@@ -257,23 +316,24 @@ Node *mergeNodeList(Node **head1, Node **head2) {
 }
 
 void splitNodeList(Node **origin, Node **slice1, Node **slice2) {
-    // empty list
+    // Empty list
     if(*origin == NULL) {
         *slice1 = NULL;
         *slice2 = NULL;
+        return;
     }
     
-    // finding lenght of origin list
+    // Finding length of origin list
     Node *current = *origin;
     int len = 0;
     while(current != NULL) {
-        len += 1;
+        len++;
         current = current->next;
     }
 
     int middle = len / 2;
 
-    // travers till the middle
+    // Traverse till middle
     Node *prev = NULL;
     current = *origin;
     for(int i = 0; i < middle; i++) {
@@ -284,7 +344,7 @@ void splitNodeList(Node **origin, Node **slice1, Node **slice2) {
     *slice1 = *origin;
     *slice2 = current;
 
-    // this truncates the first slice
+    // This truncates the first slice
     if(prev != NULL) {
         prev->next = NULL;
     }
@@ -294,25 +354,27 @@ void splitNodeList(Node **origin, Node **slice1, Node **slice2) {
 
 void clearNode(Node **head) {
     if(*head == NULL) {
-        printf("The list is empty.\n");
         return;
     }
 
-    // recursive giving in input the next ptr
+    // Recursive free from head to tail
     clearNode(&(*head)->next);
     free(*head);
     *head = NULL;
 } 
 
 void printNode(Node **head) {
+    if(*head == NULL) {
+        printf("NULL\n");
+        return;
+    }
+    
     Node *current = *head;
-
     while(current->next != NULL) {
         printf(" %d ->", current->data);
         current = current->next;
     }
-    current = current->next;
-    printf( " %d -> NULL", current->data);
+    printf(" %d -> NULL\n", current->data);
 }
 
 Dnode *initDnode(int data) {
@@ -483,11 +545,31 @@ void removeDNodeValue(Dnode **head, int value) {
         *head = (*head)->next;
         (*head)->prev = NULL;
         free(tmp);
+        return;
     }
 
     Dnode *current = *head;
     while(current->next != NULL && current->next->data != value) {
         current = current->next;
+    }
+    current->next = current->next->next;
+    current->next->prev = current;
+}
+
+void removeDNodeAtPosition(Dnode **head, int position) {
+    Dnode *tmp = *head;
+    if(position == 0 && *head != NULL) {
+        *head = (*head)->next;
+        (*head)->prev = NULL;
+        free(tmp);
+        return;
+    }
+
+    Dnode *current = *head;
+    int i = 0;
+    while(current->next != NULL && i < position - 1) {
+        current = current->next;
+        i++;
     }
     current->next = current->next->next;
     current->next->prev = current;
@@ -583,4 +665,17 @@ void sortDNodeDecreasingly(Dnode **head) {
             }
         }
     } while(swapped);
+}
+
+
+void valueDNodeSearch(Dnode **head, int value) {
+    if(*head == NULL) {
+        printf("The list is empty.\n");
+        return;
+    }
+
+    Dnode *current = *head;
+    while(current->next != NULL && current->next->data != value) {
+        current = current->next;
+    }
 }
