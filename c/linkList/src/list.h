@@ -55,7 +55,7 @@ void sortDNodeDecreasingly(Dnode **head);
 
 void valueDNodeSearch(Dnode **head, int value);
 
-void mergeDNodeList(Dnode **head1, Dnode **head2);
+Dnode *mergeDNodeList(Dnode **head1, Dnode **head2);
 void splitDNodeList(Dnode **original, Dnode **slice1, Dnode **slice2);
 
 void clearDNode(Dnode **head);
