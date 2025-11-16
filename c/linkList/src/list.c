@@ -365,7 +365,7 @@ void clearNode(Node **head) {
 
 void printNode(Node **head) {
     if(*head == NULL) {
-        printf("NULL\n");
+        printf("The list is empty.\n");
         return;
     }
     
@@ -575,7 +575,7 @@ void removeDNodeAtPosition(Dnode **head, int position) {
     current->next->prev = current;
 }
 
-void sortDoublyIncreasingly(Dnode **head) {
+void sortDNodeIncreasingly(Dnode **head) {
     if(*head == NULL || (*head)->next == NULL)
         return;
 
@@ -667,7 +667,6 @@ void sortDNodeDecreasingly(Dnode **head) {
     } while(swapped);
 }
 
-
 void valueDNodeSearch(Dnode **head, int value) {
     if(*head == NULL) {
         printf("The list is empty.\n");
@@ -675,7 +674,128 @@ void valueDNodeSearch(Dnode **head, int value) {
     }
 
     Dnode *current = *head;
-    while(current->next != NULL && current->next->data != value) {
+    while(current != NULL) {
+        if(current->data == value) {
+            printf("We found %d in the list.\n", value);
+            return;
+        }
         current = current->next;
     }
+    
+    printf("There is no %d in the list.\n", value);
+}
+
+Dnode *mergeDNodeList(Dnode **head1, Dnode **head2) {
+    Dnode *head = NULL;
+    Dnode *h = NULL; // Moving ptr
+
+    while(*head1 != NULL && *head2 != NULL) {
+        if((*head1)->data <= (*head2)->data) {
+            if(h == NULL) {
+                head = *head1;
+                h = *head1;
+            } else {
+                h->next = *head1;
+                (*head1)->prev = h;
+                h = h->next;
+            }
+            *head1 = (*head1)->next;
+        } else {
+            if(h == NULL) {
+                head = *head2;
+                h = *head2;
+            } else {
+                h->next = *head2;
+                (*head2)->prev = h;
+                h = h->next;
+            }
+            *head2 = (*head2)->next;
+        }
+    }
+
+    // Adding the rest
+    if(*head1 != NULL) {
+        if(h == NULL) {
+            head = *head1;
+        } else {
+            h->next = *head1;
+            (*head1)->prev = h;
+        }
+    } else if(*head2 != NULL) {
+        if(h == NULL) {
+            head = *head2;
+        } else {
+            h->next = *head2;
+            (*head2)->prev = h;
+        }
+    }
+
+    if(head != NULL) head->prev = NULL;
+    return head;
+}
+
+void splitDNodeList(Dnode **original, Dnode **slice1, Dnode **slice2) {
+    // Empty list
+    if(*original == NULL) {
+        *slice1 = NULL;
+        *slice2 = NULL;
+        return;
+    }
+
+    // Finding length of origin list
+    Dnode *current = *original;
+    int len = 0;
+    while(current != NULL) {
+        len++;
+        current = current->next;
+    }
+
+    int middle = len / 2;
+
+    // Traverse till middle
+    Dnode *prev = NULL;
+    current = *original;
+    for(int i = 0; i < middle; i++) {
+        prev = current;
+        current = current->next;
+    }
+
+    *slice1 = *original;
+    *slice2 = current;
+
+    // This truncates the first slice
+    if(prev != NULL) {
+        prev->next = NULL;
+    }
+
+    // Fix prev pointers
+    if(*slice1 != NULL) (*slice1)->prev = NULL;
+    if(*slice2 != NULL) (*slice2)->prev = NULL;
+
+    *original = NULL;
+}
+
+void clearDNode(Dnode **head) {
+    if(*head == NULL) {
+        return;
+    }
+
+    // Recursive free from head to tail
+    clearDNode(&(*head)->next);
+    free(*head);
+    *head = NULL;
+}
+
+void printDNode(Dnode **head) {
+    if(*head == NULL) {
+        printf("The list is empty.\n");
+        return;
+    }
+
+    Dnode *current = *head;
+    while(current->next != NULL) {
+        printf(" %d ->", current->data);
+        current = current->next;
+    }
+    printf(" %d -> NULL\n", current->data);
 }
