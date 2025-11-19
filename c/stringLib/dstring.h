@@ -28,10 +28,10 @@ dstring_t* substring(dstring_t **src, size_t start, size_t len);
 int find_string(dstring_t **src, const char *text);
 
 // Compares two string and returns 0 if they are equal.
-int string_cmp(dstring_t **src, const char *text);
+int string_cmp(dstring_t *src, const char *text);
 
 // Prints the string .
-void print_string(dstring_t **str);
+void print_string(dstring_t *str);
 
 // Returns the lenght of a string. Returns 0 if NULL.
 size_t str_len(const char *text);
