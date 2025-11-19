@@ -1,132 +1,117 @@
 #include "dstring.h"
+
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdint.h>
 
 #define STR_LEN_DEF 20
 
 size_t str_len(const char *text) {
+    if (!text) return 0;
     const char *x = text;
-    // Traverses to the last char
-    while(*x) {
-        x++;
-    }
-    return (x - text);
+    while (*x) x++;
+    return (size_t)(x - text);
 }
 
 dstring_t* create_string(const char *init) {
-    // Allocate the struct itself
-    dstring_t *str = malloc(sizeof(dstring_t));
-    if(!str) {
+    dstring_t *str = malloc(sizeof *str);
+    if (!str) {
         printf("Memory allocation failed!\n");
         return NULL;
     }
-    
-    // Calculate initial string length
-    size_t length = 0;
-    if(init) {
-        length = str_len(init);
-    }
-    
-    // Check capacity (at least STR_LEN_DEF or length + 1)
+
+    size_t length = init ? str_len(init) : 0;
+    size_t needed = length + 1; // include null terminator
+
     size_t capacity = STR_LEN_DEF;
-    if(length >= capacity) {
-        capacity = length * 2 + 1;
+    if (capacity < needed) {
+        // grow until it fits, guarding against overflow
+        while (capacity < needed) {
+            if (capacity > SIZE_MAX / 2) { capacity = needed; break; }
+            capacity *= 2;
+        }
     }
-    
-    // Allocate the data buffer
-    str->data = malloc(sizeof(char) * capacity);
-    if(!str->data) {
+
+    str->data = malloc(capacity * sizeof *str->data);
+    if (!str->data) {
         printf("Memory allocation failed!\n");
         free(str);
         return NULL;
     }
-    
-    // Copy the initial string
-    if(init) {
-        size_t i;
-        for(i = 0; i < length; i++) {
-            str->data[i] = init[i];
-        }
-        str->data[length] = '\0';
-    } else {
-        str->data[0] = '\0';
+
+    if (init && length > 0) {
+        memcpy(str->data, init, length);
     }
-    
-    // Set struct fields
+    str->data[length] = '\0';
     str->length = length;
     str->capacity = capacity;
-    
     return str;
 }
 
 void destroy_string(dstring_t **str) {
-    if(str && *str) {
-        if((*str)->data) {
-            free((*str)->data);
-        }
-        free(*str);
-        *str = NULL;
-    }
+    if (!str || !*str) return;
+    free((*str)->data);
+    free(*str);
+    *str = NULL;
 }
 
 void string_append(dstring_t **str, const char *text) {
-    if(!*str || !text) return;
-    
-    size_t text_len = str_len(text);
-    size_t new_length = (*str)->length + text_len;
-    
-    // Check if we need to resize
-    if(new_length + 1 > (*str)->capacity) {
-        size_t new_capacity = (new_length + 1) * 2;
-        char *new_data = realloc((*str)->data, new_capacity);
-        if(!new_data) {
+    if (!str || !*str || !text) return;
+    size_t tlen = str_len(text);
+    if (tlen == 0) return;
+
+    size_t new_length = (*str)->length + tlen;
+    size_t needed = new_length + 1;
+    if (needed > (*str)->capacity) {
+        // capacity grows until it fits with overflow guard
+        size_t new_capacity = (*str)->capacity ? (*str)->capacity : STR_LEN_DEF;
+        while (new_capacity < needed) {
+            if (new_capacity > SIZE_MAX / 2) { new_capacity = needed; break; }
+            new_capacity *= 2;
+        }
+        char *new_data = realloc((*str)->data, new_capacity * sizeof *new_data);
+        if (!new_data) {
             printf("Memory allocation failed!\n");
             return;
         }
         (*str)->data = new_data;
         (*str)->capacity = new_capacity;
     }
-    
-    // Copy text to end
-    size_t i;
-    for(i = 0; i < text_len; i++) {
-        (*str)->data[(*str)->length + i] = text[i];
-    }
-    (*str)->data[new_length] = '\0';
+
+    // Starts coping text bytes from the index lenght forward so it does not corrupt the source string
+    memcpy((*str)->data + (*str)->length, text, tlen);
     (*str)->length = new_length;
+    (*str)->data[new_length] = '\0';
 }
 
 void string_prepend(dstring_t **str, const char *text) {
-    if(!*str || !text) return;
-    
-    size_t text_len = str_len(text);
-    size_t new_length = (*str)->length + text_len;
-    
-    // Check if we need to resize
-    if(new_length + 1 > (*str)->capacity) {
-        size_t new_capacity = (new_length + 1) * 2;
-        char *new_data = realloc((*str)->data, new_capacity);
-        if(!new_data) {
+    if (!str || !*str || !text) return;
+    size_t tlen = str_len(text);
+    if (tlen == 0) return;
+
+    size_t new_length = (*str)->length + tlen;
+    size_t needed = new_length + 1;
+    if (needed > (*str)->capacity) {
+        size_t new_capacity = (*str)->capacity ? (*str)->capacity : STR_LEN_DEF;
+        while (new_capacity < needed) {
+            if (new_capacity > SIZE_MAX / 2) { new_capacity = needed; break; }
+            new_capacity *= 2;
+        }
+        char *new_data = realloc((*str)->data, new_capacity * sizeof *new_data);
+        if (!new_data) {
             printf("Memory allocation failed!\n");
             return;
         }
         (*str)->data = new_data;
         (*str)->capacity = new_capacity;
     }
-    
-    // Shift existing string to the right
-    // Shifts starting from the last char of the original string
-    size_t i;
-    for(i = (*str)->length; i > 0; i--) {
-        (*str)->data[i + text_len - 1] = (*str)->data[i - 1];
-    }
-    
-    // Copy text to beginning
-    for(i = 0; i < text_len; i++) {
-        (*str)->data[i] = text[i];
-    }
-    (*str)->data[new_length] = '\0';
+
+    // move existing data to make space for prefix: use memmove for overlap
+    memmove((*str)->data + tlen, (*str)->data, (*str)->length);
+    memcpy((*str)->data, text, tlen);
     (*str)->length = new_length;
+    (*str)->data[new_length] = '\0';
 }
 
 // This function it returns a substring give the start index and the lenght of the substring
