@@ -8,15 +8,15 @@
 #define STR_LEN_DEF 20
 
 size_t str_len(const char *text) {
-    if (!text) return 0;
+    if(!text) return 0;
     const char *x = text;
-    while (*x) x++;
+    while(*x) x++;
     return (size_t)(x - text);
 }
 
 dstring_t* create_string(const char *init) {
     dstring_t *str = malloc(sizeof *str);
-    if (!str) {
+    if(!str) {
         printf("Memory allocation failed!\n");
         return NULL;
     }
@@ -25,22 +25,22 @@ dstring_t* create_string(const char *init) {
     size_t needed = length + 1; // include null terminator
 
     size_t capacity = STR_LEN_DEF;
-    if (capacity < needed) {
+    if(capacity < needed) {
         // grow until it fits, guarding against overflow
-        while (capacity < needed) {
+        while(capacity < needed) {
             if (capacity > SIZE_MAX / 2) { capacity = needed; break; }
             capacity *= 2;
         }
     }
 
     str->data = malloc(capacity * sizeof *str->data);
-    if (!str->data) {
+    if(!str->data) {
         printf("Memory allocation failed!\n");
         free(str);
         return NULL;
     }
 
-    if (init && length > 0) {
+    if(init && length > 0) {
         memcpy(str->data, init, length);
     }
     str->data[length] = '\0';
@@ -50,28 +50,28 @@ dstring_t* create_string(const char *init) {
 }
 
 void destroy_string(dstring_t **str) {
-    if (!str || !*str) return;
+    if(!str || !*str) return;
     free((*str)->data);
     free(*str);
     *str = NULL;
 }
 
 void string_append(dstring_t **str, const char *text) {
-    if (!str || !*str || !text) return;
+    if(!str || !*str || !text) return;
     size_t tlen = str_len(text);
-    if (tlen == 0) return;
+    if(tlen == 0) return;
 
     size_t new_length = (*str)->length + tlen;
     size_t needed = new_length + 1;
-    if (needed > (*str)->capacity) {
+    if(needed > (*str)->capacity) {
         // capacity grows until it fits with overflow guard
         size_t new_capacity = (*str)->capacity ? (*str)->capacity : STR_LEN_DEF;
-        while (new_capacity < needed) {
-            if (new_capacity > SIZE_MAX / 2) { new_capacity = needed; break; }
+        while(new_capacity < needed) {
+            if(new_capacity > SIZE_MAX / 2) { new_capacity = needed; break; }
             new_capacity *= 2;
         }
         char *new_data = realloc((*str)->data, new_capacity * sizeof *new_data);
-        if (!new_data) {
+        if(!new_data) {
             printf("Memory allocation failed!\n");
             return;
         }
@@ -86,20 +86,20 @@ void string_append(dstring_t **str, const char *text) {
 }
 
 void string_prepend(dstring_t **str, const char *text) {
-    if (!str || !*str || !text) return;
+    if(!str || !*str || !text) return;
     size_t tlen = str_len(text);
     if (tlen == 0) return;
 
     size_t new_length = (*str)->length + tlen;
     size_t needed = new_length + 1;
-    if (needed > (*str)->capacity) {
+    if(needed > (*str)->capacity) {
         size_t new_capacity = (*str)->capacity ? (*str)->capacity : STR_LEN_DEF;
-        while (new_capacity < needed) {
-            if (new_capacity > SIZE_MAX / 2) { new_capacity = needed; break; }
+        while(new_capacity < needed) {
+            if(new_capacity > SIZE_MAX / 2) { new_capacity = needed; break; }
             new_capacity *= 2;
         }
         char *new_data = realloc((*str)->data, new_capacity * sizeof *new_data);
-        if (!new_data) {
+        if(!new_data) {
             printf("Memory allocation failed!\n");
             return;
         }
@@ -114,34 +114,44 @@ void string_prepend(dstring_t **str, const char *text) {
     (*str)->data[new_length] = '\0';
 }
 
-// This function it returns a substring give the start index and the lenght of the substring
 dstring_t* substring(dstring_t **src, size_t start, size_t len) {
-    if(!*src || start >= (*src)->length) {
-        return create_string("");
-    }
-    
-    // Adjust length if it goes beyond string end
+    if(!src || !*src) return NULL;
+    if(start >= (*src)->length) return create_string("");
+        
+    // adjust length if it goes beyond string end
     if(start + len > (*src)->length) {
         len = (*src)->length - start;
     }
     
-    // Create temporary buffer for substring
-    char *temp = malloc(len + 1);
+    dstring_t *temp = create_string(NULL);
     if(!temp) {
-        printf("Memory allocation failed!\n");
+        printf("Memory allocation failed.\n");
         return NULL;
     }
-    
-    size_t i;
-    for(i = 0; i < len; i++) {
-        temp[i] = (*src)->data[start + i];
+
+    // ensure capacity for substring
+    if(temp->capacity < len + 1) {
+        size_t new_capacity = temp->capacity ? temp->capacity : STR_LEN_DEF;
+        while(new_capacity < len + 1) {
+            if(new_capacity > SIZE_MAX / 2) { new_capacity = len + 1; break; }
+            new_capacity *= 2;
+        }
+
+        // allocating new size for the substring
+        char *new_temp_data = realloc(temp->data, new_capacity * sizeof *new_temp_data);
+        if(!new_temp_data) {
+            destroy_string(&temp);
+            return NULL;
+        }
+        temp->data = new_temp_data;
+        temp->capacity = new_capacity;
     }
-    temp[len] = '\0';
-    
-    dstring_t *result = create_string(temp);
-    free(temp);
-    
-    return result;
+
+    // coping the substring from data + start index
+    memcpy(temp->data, (*src)->data + start, len);
+    temp->data[len] = '\0';
+    temp->length = len;
+    return temp;
 }
 
 int find_string(dstring_t **src, const char *text) {
@@ -168,22 +178,26 @@ int find_string(dstring_t **src, const char *text) {
     return -1;
 }
 
-int string_cmp(dstring_t **src, const char *text) {
-    if(!*src || !text) return -2;
+int string_cmp(dstring_t *src, const char *text) {
+    if(!src || !text) return -2;
     
-    size_t i;
-    for(i = 0; i < (*src)->length && text[i] != '\0'; i++) {
-        if((*src)->data[i] < text[i]) return -1;
-        if((*src)->data[i] > text[i]) return 1;
+    size_t i = 0;
+    while(i < src->length && text[i] != '\0') {
+        if(src->data[i] != text[i]) {
+            // returns only if the chars are diffrent not if they are not same lenght
+            return (src->data[i] < text[i]) ? -1 : 1;
+        }
+        i++;
     }
-    
-    if(i < (*src)->length) return 1;   // src is longer
-    if(text[i] != '\0') return -1;  // text is longer
-    return 0;                        // equal
+
+    // if the dstring is longer return 1
+    if(i < src->length) return 1;
+    // if the dstring is shorter return -1
+    if(text[i] != '\0') return -1;
+    return 0;
 }
 
-void print_string(dstring_t **str) {
-    if(*str && (*str)->data) {
-        printf("%s\n", (*str)->data);
-    }
+void print_string(dstring_t *str) {
+    if(!str || !str->data) return;
+    printf("%s\n", str->data);
 }
