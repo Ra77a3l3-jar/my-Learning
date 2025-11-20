@@ -22,10 +22,10 @@ void string_append(dstring_t **str, const char *text);
 void string_prepend(dstring_t **str, const char *text);
 
 // Return a newly allocated dstring_t containing the substring of the source string from index start + len.
-dstring_t* substring(dstring_t **src, size_t start, size_t len);
+dstring_t* substring(dstring_t *src, size_t start, size_t len);
 
 // Checks if a string is present in the source string. 
-int find_string(dstring_t **src, const char *text);
+int find_string(dstring_t *src, const char *text);
 
 // Compares two string and returns 0 if they are equal.
 int string_cmp(dstring_t *src, const char *text);

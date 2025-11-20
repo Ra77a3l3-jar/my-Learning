@@ -114,13 +114,13 @@ void string_prepend(dstring_t **str, const char *text) {
     (*str)->data[new_length] = '\0';
 }
 
-dstring_t* substring(dstring_t **src, size_t start, size_t len) {
-    if(!src || !*src) return NULL;
-    if(start >= (*src)->length) return create_string("");
+dstring_t* substring(dstring_t *src, size_t start, size_t len) {
+    if(!src) return NULL;
+    if(start >= src->length) return create_string("");
         
     // adjust length if it goes beyond string end
-    if(start + len > (*src)->length) {
-        len = (*src)->length - start;
+    if(start + len > src->length) {
+        len = src->length - start;
     }
     
     dstring_t *temp = create_string(NULL);
@@ -148,33 +148,24 @@ dstring_t* substring(dstring_t **src, size_t start, size_t len) {
     }
 
     // coping the substring from data + start index
-    memcpy(temp->data, (*src)->data + start, len);
+    memcpy(temp->data, src->data + start, len);
     temp->data[len] = '\0';
     temp->length = len;
     return temp;
 }
 
-int find_string(dstring_t **src, const char *text) {
+int find_string(dstring_t *src, const char *text) {
     // Check for border case
-    if(!*src || !text) return -1;
+    if(!src || !text) return -1;
 
     size_t text_len = str_len(text);
-    if(text_len == 0 || text_len > (*src)->length) return -1;
-    
-    size_t i = 0, j = 0;
-    for(i = 0; i <= (*src)->length - text_len; i++) {
-        int match = 1;
-        for(j = 0; j < text_len; j++) {
-            if((*src)->data[i + j] != text[j]) {
-                match = 0;
-                break;
-            }
-        }
-        if(match) {
-            return i;
-        }
+    if(text_len == 0) return 0; // empty string
+    if(text_len > src->length) return -1; // text too long
+
+    size_t max_ind = src->length - text_len;
+    for(size_t i = 0; i <= max_ind; i++) {
+        if(memcmp(src->data + i, text, text_len) == 0) return (int)i;
     }
-    
     return -1;
 }
 
