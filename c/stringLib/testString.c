@@ -1,4 +1,4 @@
-#include "dstring.h"
+#include "include/dstring.h"
 
 #include <stdio.h>
 
@@ -7,15 +7,15 @@ int main(void) {
     dstring_t *str = create_string("Hello, World!");
 
     string_append(&str, " by Raffaele");
-    print_string(&str);
+    print_string(str);
 
     dstring_t *str1 = create_string("combo col Gigante.");
     string_prepend(&str1, "Solo ");
 
-    dstring_t *sub = substring(&str1, 11, 3);
-    print_string(&sub);
+    dstring_t *sub = substring(str1, 11, 3);
+    print_string(sub);
     
-    int i = find_string(&str1, "Gigante");
+    int i = find_string(str1, "Gigante");
     if(i != -1) {
         printf("The string is present (index %d).\n", i);
     } else {
@@ -23,7 +23,7 @@ int main(void) {
     }
 
     dstring_t *str2 = create_string("Batman");
-    int x = string_cmp(&str2, "Batman");
+    int x = string_cmp(str2, "Batman");
     if(x == 0) {
         printf("The strings are equal.\n");
     } else if(x == -1) {
@@ -34,7 +34,7 @@ int main(void) {
         printf("One or both strings are NULL.\n");
     }
 
-    int y = string_cmp(&str2, "batman");
+    int y = string_cmp(str2, "batman");
     if(y == 0) {
         printf("The strings are equal.\n");
     } else if(y == -1) {
@@ -45,7 +45,7 @@ int main(void) {
         printf("One or both strings are NULL.\n");
     }
 
-    print_string(&str1);
+    print_string(str1);
 
     size_t leng = str_len("Hello, World!");
     printf("The length of the string is %zu.\n", leng);
