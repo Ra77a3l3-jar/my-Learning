@@ -35,13 +35,16 @@ HashMap* hashmap_create(size_t capacity) {
     return map;
 }
 
-void hashmap_put(HashMap **map, char *key, int value) {
-    if(!*map || !map) {
-        return;
-    }
+void hashmap_put(HashMap **map, const char *key, int value) {
+    if(!*map || !map || !key) return;
 
     unsigned long index = hash(key, (*map)->capacity);
     HashEntry *entry = (*map)->buckets[index];
+
+    float load_factor = (float)(*map)->size / (*map)->capacity; // check if resize needed
+    if(load_factor > 0.75) {
+        hashmap_resize(map);
+    }
 
     while(entry) {
         if(strcmp(entry->key, key) == 0) {
@@ -63,7 +66,7 @@ void hashmap_put(HashMap **map, char *key, int value) {
 }
 
 int hashmap_get(HashMap **map, const char *key, int value) {
-    if(!*map || !map) return 0;
+    if(!*map || !map || !key) return 0;
 
     unsigned long index = hash(key, (*map)->capacity);
     HashEntry *entry = (*map)->buckets[index];
@@ -78,16 +81,28 @@ int hashmap_get(HashMap **map, const char *key, int value) {
 }
 
 void hashmap_remove(HashMap **map, const char *key) {
-    if(!*map || !map) return;
+    if(!*map || !map || !key) return;
 
     unsigned long index = hash(key, (*map)->capacity);    
     HashEntry *entry = (*map)->buckets[index];
+    HashEntry *prev = NULL;
 
     while(entry) {
         if(strcmp(entry->key, key) == 0) {
-            
+            if (prev) {
+                prev->next = entry->next;
+            } else {
+                (*map)->buckets[index] = entry->next;
+            }
+            free(entry->key);
+            free(entry);
+            (*map)->size--;
+            return;   
         }
+        prev = entry;
+        entry = entry->next;
     }
+    return;
 }
 
 void hashmap_destroy(HashMap **map) {
@@ -107,9 +122,34 @@ void hashmap_destroy(HashMap **map) {
 }
 
 void hashmap_resize(HashMap **map) {
-    
+    if(!*map ||!map) return;
+
+    size_t old_capacity = (*map)->capacity;
+
+    HashEntry **old_buckets = (*map)->buckets;
+    (*map)->capacity *= 2;
+    (*map)->buckets = calloc((*map)->capacity, sizeof(HashEntry*));
+    (*map)->size = 0;
+
+    for(size_t i = 0; i < old_capacity; i++) {
+        HashEntry *entry = old_buckets[i];
+        while(entry) {
+            HashEntry *next = entry->next;
+            hashmap_put(map, entry->key, entry->value);
+            free(entry->key);
+            free(entry);
+            entry = next;
+        }
+    }
+    free(old_buckets);
 }
 
 void hashmap_put_with_resize(HashMap **map, const char *key, int value) {
-    
+    if(!*map || !map || !key) return;
+
+    float load_factor = (float)(*map)->size / (*map)->capacity; // check if resize needed
+    if(load_factor > 0.75) {
+        hashmap_resize(map);
+    }
+    hashmap_put(map, key, value);
 }
