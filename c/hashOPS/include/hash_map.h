@@ -21,7 +21,7 @@ typedef struct HashMap {
 
 unsigned long hash(const char *key, size_t capacity);
 HashMap* hashmap_create(size_t capacity);
-void hashmap_put(HashMap **map, char *key, int value);
+void hashmap_put(HashMap **map, const char *key, int value);
 int hashmap_get(HashMap **map, const char *key, int value);
 void hashmap_remove(HashMap **map, const char *key);
 void hashmap_destroy(HashMap **map);
