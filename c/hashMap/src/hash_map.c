@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include "../include/hash_map.h"
 
 #include <stddef.h>
@@ -15,19 +17,15 @@ unsigned long hash(const char *key, size_t capacity) {
     return hash % capacity;
 }
 
-HashMap* hashmap_create(size_t capacity) {
+HashMap* hashmap_create() {
     HashMap *map = malloc(sizeof(HashMap));
     if(!map) {
         return NULL;
     }
 
-    if(capacity <= 0) {
-        map->capacity = DEF_CAPACITY;
-    } else {
-        map->capacity = capacity;
-    }
+    map->capacity = DEF_CAPACITY;
     map->size = 0;
-    map->buckets = calloc(capacity, sizeof(HashEntry));
+    map->buckets = calloc(map->capacity, sizeof(HashEntry*));
     if(!map->buckets) {
         free(map);
         return NULL;
@@ -38,13 +36,13 @@ HashMap* hashmap_create(size_t capacity) {
 void hashmap_put(HashMap **map, const char *key, int value) {
     if(!*map || !map || !key) return;
 
-    unsigned long index = hash(key, (*map)->capacity);
-    HashEntry *entry = (*map)->buckets[index];
-
     float load_factor = (float)(*map)->size / (*map)->capacity; // check if resize needed
     if(load_factor > 0.75) {
         hashmap_resize(map);
     }
+
+    unsigned long index = hash(key, (*map)->capacity);
+    HashEntry *entry = (*map)->buckets[index];
 
     while(entry) {
         if(strcmp(entry->key, key) == 0) {
@@ -65,19 +63,19 @@ void hashmap_put(HashMap **map, const char *key, int value) {
     (*map)->size++;
 }
 
-int hashmap_get(HashMap **map, const char *key, int value) {
+int hashmap_get(HashMap **map, const char *key) {
     if(!*map || !map || !key) return 0;
 
     unsigned long index = hash(key, (*map)->capacity);
     HashEntry *entry = (*map)->buckets[index];
 
     while(entry) {
-        if(strcmp(entry->key, key) == 0) { // compares the keys if 0 they are equal
+        if(strcmp(entry->key, key) == 0) {
             return entry->value;
         }
         entry = entry->next;
     }
-     return 0;
+    return 0;
 }
 
 void hashmap_remove(HashMap **map, const char *key) {

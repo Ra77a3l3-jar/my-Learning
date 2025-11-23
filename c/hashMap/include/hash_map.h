@@ -20,9 +20,9 @@ typedef struct HashMap {
 } HashMap;
 
 unsigned long hash(const char *key, size_t capacity);
-HashMap* hashmap_create(size_t capacity);
+HashMap* hashmap_create();
 void hashmap_put(HashMap **map, const char *key, int value);
-int hashmap_get(HashMap **map, const char *key, int value);
+int hashmap_get(HashMap **map, const char *key);
 void hashmap_remove(HashMap **map, const char *key);
 void hashmap_destroy(HashMap **map);
 void hashmap_resize(HashMap **map);
