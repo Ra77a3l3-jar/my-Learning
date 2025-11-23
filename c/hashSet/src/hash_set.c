@@ -6,6 +6,16 @@
 #include <stdio.h>
 #include <string.h>
 
+unsigned long hash(const char *key, size_t capacity) {
+    unsigned long hash = 5381;
+    int c;
+
+    while((c = *key++)) {
+        hash = ((hash << 5) + hash) + c;
+    }
+    return hash % capacity;
+}
+
 HashSet* hashset_create() {
     HashSet *set = malloc(sizeof(HashSet));
     if(!set) {

@@ -2,7 +2,8 @@
 #define HASH_SET_H
 
 #include <stdlib.h>
-#include "hash_map.h"
+
+#define DEF_CAPACITY 32
 
 typedef struct SetEntry {
     char *key;
@@ -16,6 +17,7 @@ typedef struct HashSet {
 } HashSet;
 
 HashSet* hashset_create();
+unsigned long hash(const char *key, size_t capacity);
 void hashset_add(HashSet **set, const char *key);
 void hashset_contains(HashSet *set, const char *key);
 void hashset_destroy(HashSet **set);

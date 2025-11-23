@@ -1,27 +1,47 @@
-# Minimal Makefile for testSingleList using clang
+# ===== Generic Reusable Makefile =====
 
-CC = clang
-CFLAGS = -Wall -Wextra -std=c11 -g
+# Compiler and flags
+CC      ?= clang
+CFLAGS  ?= -Wall -Wextra -std=c11
+DBGFLAGS = -g
+RELFLAGS = -O2
 
-SRCS = dstring.c testString.c
-OBJS = $(SRCS:.c=.o)
+# Target binary name (override with: make TARGET=myprog)
+TARGET  ?= app
 
-TARGET = testString
+# Source and build directories
+SRCDIR  = .
+BUILDDIR = build
 
-.PHONY: all run clean
+# Collect all .c files automatically
+SRCS    := $(wildcard $(SRCDIR)/*.c)
+OBJS    := $(patsubst $(SRCDIR)/%.c, $(BUILDDIR)/%.o, $(SRCS))
 
-all: $(TARGET)
+# Default build type
+all: debug
 
-$(TARGET): testString.o dstring.o
+# === Build types ===
+debug: CFLAGS += $(DBGFLAGS)
+debug: $(TARGET)
+
+release: CFLAGS += $(RELFLAGS)
+release: $(TARGET)
+
+# === Link target ===
+$(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 
-# Compile C sources to objects
-%.o: %.c
+# === Build objects to build/ ===
+$(BUILDDIR)/%.o: $(SRCDIR)/%.c
+	@mkdir -p $(BUILDDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Run the test
+# === Run program ===
 run: $(TARGET)
 	./$(TARGET)
 
+# === Clean ===
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -rf $(BUILDDIR) $(TARGET)
+
+.PHONY: all debug release run clean
