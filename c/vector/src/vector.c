@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stddef.h>
 
-Vector *createVector(size_t element_size){
+Vector *vector_create(size_t element_size){
     if(element_size == 0) return NULL;
     
     Vector *new_vec = malloc(sizeof(Vector));
@@ -24,14 +24,14 @@ Vector *createVector(size_t element_size){
 }
 
 void vector_destroy(Vector **vec) {
-    if(!*vec || !vec) return;
+    if(!vec) return;
     free((*vec)->data);
     free(*vec);
 }
 
-void vector_clear(Vector **vec) {
-    if(!*vec || !vec) return;
-    (*vec)->size = 0;
+void vector_clear(Vector *vec) {
+    if(!vec) return;
+    vec->size = 0;
 }
 
 size_t vector_size(Vector *vec) {
@@ -53,32 +53,68 @@ bool vector_is_empty(Vector *vec) {
     }
 }
 
+void *vector_front(Vector *vec) {
+    if(!vec) return NULL;
+    return vector_get(vec, 0);
+}
+
+void *vector_back(Vector *vec) {
+    if(!vec) return NULL;
+    return vector_get(vec, vec->size - 1);
+}
+
 void *vector_get(Vector *vec, size_t index) {
     if(!vec || index >= vec->size) return NULL;
-    return (char*)vec->data + (index + vec->element_size);
+    return (char *)vec->data + (index + vec->element_size);
 }
 
-void vector_set(Vector **vec, size_t index, void *element) {
-    if(!*vec || !vec || index >= (*vec)->size || !element) return;
-    void *place = (char* )(*vec)->data + (index + (*vec)->element_size);
-    memcpy(place, element, (*vec)->element_size);
+int vector_set(Vector *vec, size_t index, void *element) {
+    if(!vec || index >= vec->size || !element) return -1;
+    void *place = (char *)vec->data + (index + vec->element_size);
+    memcpy(place, element, vec->element_size);
+    return 0;
 }
 
-void vector_grow(Vector **vec) {
-    if(!*vec || !vec) return;
-    (*vec)->capacity *= GROWTH_FACTOR;
-    if((*vec)->capacity > 0) {
-        Vector *new_vector = realloc(*vec, sizeof((*vec)->element_size) * (*vec)->capacity);
+void vector_grow(Vector *vec) {
+    if(!vec) return;
+    vec->capacity *= GROWTH_FACTOR;
+    if(vec->capacity > 0) {
+        Vector *new_vector = realloc(vec, sizeof(vec->element_size) * vec->capacity);
         if(!new_vector) return;
-        *vec = new_vector;
+        vec = new_vector;
     }
 }
 
-void vector_ensure_capacity(Vector **vec, size_t min_capacity) {
-    if(!*vec || !vec) return;
+int vector_ensure_capacity(Vector *vec, size_t min_capacity) {
+    if(!vec) return -1;
 
-    if((*vec)->capacity < min_capacity) {
-        (*vec)->capacity = min_capacity;
+    if(vec->capacity < min_capacity) {
+        vec->capacity = min_capacity;
     }
+    return 0;
+}
+
+int vector_push(Vector *vec, void *element) {
+    if(!vec || !element) return -1;
+    void *place = (char *)vec->data + (vec->size * vec->element_size);
+    memcpy(place, element, vec->element_size);
+    return 0;
+}
+
+int vector_pop(Vector *vec) {
+    if(!vec) return -1;
+    vec->size -= 1;
+    return 0;
+}
+
+int vector_insert(Vector *vec, size_t index, void *element) {
+    if(!vec || index >= vec->capacity || !element) return -1;
+    void *place = (char *)vec->data + (index * vec->element_size); 
+    memcpy(place, element, vec->element_size);
+    return 0;
+}
+
+int vector_remove(Vector *vec, size_t index, void *element) {
+    
 }
 
