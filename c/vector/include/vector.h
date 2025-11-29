@@ -18,6 +18,8 @@ typedef struct {
     size_t element_size;
 } Vector;
 
+typedef int (*compare_func)(const void *, const void *);
+
 Vector *vector_create(size_t element_size);
 void vector_destroy(Vector **vec);
 int vector_push(Vector *vec, void *element);
@@ -34,7 +36,7 @@ void *vector_front(Vector *vec);
 void *vector_back(Vector *vec);
 int vector_insert(Vector *vec, size_t index, void *element);
 int vector_remove(Vector *vec, size_t index, void *element);
-void vector_sort(Vector *vec);
+void vector_sort(Vector *vec, compare_func cmp);
 void vector_reverse(Vector *vec);
 
 #endif
