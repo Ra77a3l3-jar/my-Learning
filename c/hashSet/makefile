@@ -1,55 +1,48 @@
 # Compiler and flags
-CC = gcc
-CFLAGS = -Wall -Wextra -Werror -std=c11 -I./include -I../hashMap/include
-LDFLAGS =
+CC      ?= clang
+CFLAGS  ?= -Wall -Wextra -std=c11
+DBGFLAGS = -g
+RELFLAGS = -O2
 
-# Directories
-SRC_DIR = src
-INC_DIR = include
-BUILD_DIR = build
+# Target binary name 
+TARGET  ?= app
 
-# Automatically collect source files (including hash_map.c for hash function)
-SRCS = $(wildcard $(SRC_DIR)/*.c) ../hashMap/src/hash_map.c
-OBJS = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(filter $(SRC_DIR)/%.c,$(SRCS))) $(BUILD_DIR)/hash_map.o
+# Source and build directories
+SRCDIR  = src
+BUILDDIR = build
 
-# Test files
-TEST_SRCS = testSet.c
-TEST_BINS = $(patsubst %.c,%,$(TEST_SRCS))
+# Collect all .c files automatically
+SRCS    := $(wildcard $(SRCDIR)/*.c)
+OBJS    := $(patsubst $(SRCDIR)/%.c, $(BUILDDIR)/%.o, $(SRCS))
 
-# Build modes
-DEBUG ?= 0
-ifeq ($(DEBUG), 1)
-    CFLAGS += -g -DDEBUG
-else
-    CFLAGS += -O2
-endif
+# Test file
+TEST    = testSet.c
+TESTOBJ = $(BUILDDIR)/testSet.o
 
-# Default target
-all: $(BUILD_DIR) $(TEST_BINS)
+# Default build type
+all: debug
 
-# Create build directory
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+debug: CFLAGS += $(DBGFLAGS)
+debug: $(TARGET)
 
-# Compile source files to object files
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
+release: CFLAGS += $(RELFLAGS)
+release: $(TARGET)
+
+$(TARGET): $(OBJS) $(TESTOBJ)
+	$(CC) $(CFLAGS) -o $@ $^
+
+$(BUILDDIR)/%.o: $(SRCDIR)/%.c
+	@mkdir -p $(BUILDDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Compile hash_map.c from hashMap directory
-$(BUILD_DIR)/hash_map.o: ../hashMap/src/hash_map.c | $(BUILD_DIR)
+$(TESTOBJ): $(TEST)
+	@mkdir -p $(BUILDDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Build test executables
-testSet: testSet.c $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+run: $(TARGET)
+	./$(TARGET)
 
-# Run tests
-test: testSet
-	./testSet
-
-# Clean build artifacts
 clean:
-	rm -rf $(BUILD_DIR) $(TEST_BINS)
+	rm -rf $(BUILDDIR) $(TARGET)
 
-# Phony targets
-.PHONY: all clean test
+.PHONY: all debug release run clean
