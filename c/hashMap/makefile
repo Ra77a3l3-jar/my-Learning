@@ -1,46 +1,47 @@
-# ===== Generic Reusable Makefile =====
-
 # Compiler and flags
 CC      ?= clang
 CFLAGS  ?= -Wall -Wextra -std=c11
 DBGFLAGS = -g
 RELFLAGS = -O2
 
-# Target binary name (override with: make TARGET=myprog)
+# Target binary name 
 TARGET  ?= app
 
 # Source and build directories
-SRCDIR  = .
+SRCDIR  = src
 BUILDDIR = build
 
 # Collect all .c files automatically
 SRCS    := $(wildcard $(SRCDIR)/*.c)
 OBJS    := $(patsubst $(SRCDIR)/%.c, $(BUILDDIR)/%.o, $(SRCS))
 
+# Test file
+TEST    = testMap.c
+TESTOBJ = $(BUILDDIR)/testMap.o
+
 # Default build type
 all: debug
 
-# === Build types ===
 debug: CFLAGS += $(DBGFLAGS)
 debug: $(TARGET)
 
 release: CFLAGS += $(RELFLAGS)
 release: $(TARGET)
 
-# === Link target ===
-$(TARGET): $(OBJS)
+$(TARGET): $(OBJS) $(TESTOBJ)
 	$(CC) $(CFLAGS) -o $@ $^
 
-# === Build objects to build/ ===
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(BUILDDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# === Run program ===
+$(TESTOBJ): $(TEST)
+	@mkdir -p $(BUILDDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
 run: $(TARGET)
 	./$(TARGET)
 
-# === Clean ===
 clean:
 	rm -rf $(BUILDDIR) $(TARGET)
 
