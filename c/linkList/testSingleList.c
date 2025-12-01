@@ -3,52 +3,73 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(void) {
-    Node *list = initNode(12);
+int compare_int(const void *a, const void *b) {
+    int val_a = *(int *)a;
+    int val_b = *(int *)b;
+    if (val_a < val_b) return -1;
+    if (val_a > val_b) return 1;
+    return 0;
+}
 
-    addNode(&list, 14);
-    addNode(&list, 19);
-    addNode(&list, 32);
-    printNode(&list);
+void print_int(void *data) {
+    printf("%d ", *(int *)data);
+}
+
+int main(void) {
+    int values1[] = {12, 14, 19, 32};
+    int values2[] = {50, 89, 65};
+    int values3[] = {40, 90, 234, 230, 14, 37};
+    
+    Node *list = initNode(&values1[0]);
+    for(int i = 1; i < 4; i++)
+        addNode(&list, &values1[i]);
+    printNode(list, print_int);
+    printf("\n");
 
     removeNodeAtEnd(&list);
-    printNode(&list);
+    printNode(list, print_int);
+    printf("\n");
 
     removeNodeHead(&list);
-    printNode(&list);
+    printNode(list, print_int);
+    printf("\n");
 
-    addNode(&list, 50);
-    addNode(&list, 89);
-    addNode(&list, 65);
-    printNode(&list);
+    for(int i = 0; i < 3; i++)
+        addNode(&list, &values2[i]);
+    printNode(list, print_int);
+    printf("\n");
 
     removeNodeAtPosition(&list, 2);
-    printNode(&list);
+    printNode(list, print_int);
+    printf("\n");
 
-    sortNodesIncreasingly(&list);
-    printNode(&list);
+    sortNodesIncreasingly(&list, compare_int);
+    printNode(list, print_int);
+    printf("\n");
 
-    sortNodesDecreasingly(&list);
-    printNode(&list);
+    sortNodesDecreasingly(&list, compare_int);
+    printNode(list, print_int);
+    printf("\n");
 
-    valueNodeSearch(&list, 89);
+    int search_val = 89;
+    valueNodeSearch(list, &search_val, compare_int);
 
-    Node *list2 = initNode(40);
-    addNode(&list2, 90);
-    addNode(&list2, 234);
-    addNode(&list2, 230);
-    addNode(&list2, 14);
-    addNode(&list2, 37);
+    Node *list2 = initNode(&values3[0]);
+    for(int i = 1; i < 6; i++)
+        addNode(&list2, &values3[i]);
 
-    Node *merge = mergeNodeList(&list, &list2);
-    printNode(&merge);
+    Node *merge = mergeNodeList(&list, &list2, compare_int);
+    printNode(merge, print_int);
+    printf("\n");
 
     Node *slice1 = NULL;
     Node *slice2 = NULL;
 
     splitNodeList(&merge, &slice1, &slice2);
-    printNode(&slice1);
-    printNode(&slice2);
+    printNode(slice1, print_int);
+    printf("\n");
+    printNode(slice2, print_int);
+    printf("\n");
     clearNode(&merge);
     clearNode(&slice1);
     clearNode(&slice2);
