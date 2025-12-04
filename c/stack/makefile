@@ -15,34 +15,44 @@ BUILDDIR = build
 SRCS    := $(wildcard $(SRCDIR)/*.c)
 OBJS    := $(patsubst $(SRCDIR)/%.c, $(BUILDDIR)/%.o, $(SRCS))
 
-# Test file
-TEST    = testStackArr.c
-TESTOBJ = $(BUILDDIR)/testStackArr.o
+# Test files
+TEST_LIST = testStackList
+TEST_ARR = testStackArr
 
 # Default build type
 all: debug
 
 debug: CFLAGS += $(DBGFLAGS)
-debug: $(TARGET)
+debug: $(TEST_LIST) $(TEST_ARR)
 
 release: CFLAGS += $(RELFLAGS)
-release: $(TARGET)
+release: $(TEST_LIST) $(TEST_ARR)
 
-$(TARGET): $(OBJS) $(TESTOBJ)
+$(TEST_LIST): $(OBJS) $(BUILDDIR)/testStackList.o
+	$(CC) $(CFLAGS) -o $@ $^
+
+$(TEST_ARR): $(OBJS) $(BUILDDIR)/testStackArr.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(BUILDDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(TESTOBJ): $(TEST)
+$(BUILDDIR)/testStackList.o: testStackList.c
 	@mkdir -p $(BUILDDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-run: $(TARGET)
-	./$(TARGET)
+$(BUILDDIR)/testStackArr.o: testStackArr.c
+	@mkdir -p $(BUILDDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+run-list: $(TEST_LIST)
+	./$(TEST_LIST)
+
+run-arr: $(TEST_ARR)
+	./$(TEST_ARR)
 
 clean:
-	rm -rf $(BUILDDIR) $(TARGET)
+	rm -rf $(BUILDDIR) $(TEST_LIST) $(TEST_ARR)
 
-.PHONY: all debug release run clean
+.PHONY: all debug release run-list run-arr clean
