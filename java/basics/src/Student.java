@@ -10,12 +10,12 @@ public class Student {
         this.id = 0;
         this.name = "Unknown";
         this.grades = new ArrayList<Double>();
-        this.grades.add(0.0);
     }
 
     public Student(int id, String name) {
         this.id = id;
         this.name = name;
+        this.grades = new ArrayList<Double>();
     }
 
     public String getName() { return name; }
@@ -24,11 +24,11 @@ public class Student {
         this.grades.add(grade);
     }
 
-    public double avrGrade() {
+    public double averageGrade() {
         double sum = 0.0;
 
-        for(int i = 0; i < grades.size(); i++) {
-            sum += grades.get(i);
+        for(double grade : grades) {
+            sum += grade;
         }
         return grades.isEmpty() ? 0 : sum / grades.size();
     }

@@ -15,13 +15,17 @@ public class BankAccount {
         this.balance = balance;
     }
 
-    public void deposit(double deposit) { this.balance += deposit; }
+    public void deposit(double deposit) { 
+        if(deposit > 0) {
+            this.balance += deposit;
+        }
+    }
 
     public void withdraw(double withdraw) {
-        if(withdraw <= balance) {
+        if(withdraw > 0 && withdraw <= balance) {
             this.balance -= withdraw;
-        } else {
-            System.out.println(" The ammount requested excedes the balance avaible.");
+        } else if(withdraw > balance) {
+            System.out.println(" The amount requested exceeds the balance available.");
         }
     }
     

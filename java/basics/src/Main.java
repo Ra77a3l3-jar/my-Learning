@@ -9,12 +9,13 @@ public class Main {
 
         for(int i = 0; i < bankAccounts.length; i++) {
             System.out.println("\n---------------------------------");
-            System.out.println(" Enter the owners name : ");
+            System.out.print(" Enter the owners name : ");
             String name = cin.nextLine();
-            System.out.println(" Enter the accounts number : ");
+            System.out.print(" Enter the accounts number : ");
             String accountNumber = cin.nextLine();
-            System.out.println(" Enter the accounts balance : ");
+            System.out.print(" Enter the accounts balance : ");
             double balance = cin.nextDouble();
+            cin.nextLine();
             System.out.println("---------------------------------\n");
             bankAccounts[i] = new BankAccount(name, accountNumber, balance);
         }
@@ -43,27 +44,31 @@ public class Main {
 
         for(int i = 0; i < students.length; i++) {
             System.out.println("\n------------------------------");
-            System.out.println(" Enter the students name : ");
+            System.out.print(" Enter the students name : ");
             String name = cin.nextLine();
-            System.out.println(" Enter the students id : ");
+            System.out.print(" Enter the students id : ");
             int id = cin.nextInt();
+            cin.nextLine();
 
-            System.out.println(" Enter the number of grades : ");
+            students[i] = new Student(id, name);
+
+            System.out.print(" Enter the number of grades : ");
             int numGrades = cin.nextInt();
+            cin.nextLine();
             for(int j = 0; j < numGrades; j++) {
-                System.out.println(" - Enter the grade " + j + " : ");
+                System.out.print(" - Enter the grade " + j + " : ");
                 double grade = cin.nextDouble();
+                cin.nextLine();
                 students[i].addGrade(grade);
             }
-            students[i] = new Student(id, name);
         }
 
-        double bestAvrGrades = students[0].avrGrade();
+        double bestAvrGrades = students[0].averageGrade();
         int studentIndex = 0;
 
         for(int i = 1; i < students.length; i++) {
-            if(students[i].avrGrade() > bestAvrGrades) {
-                bestAvrGrades = students[i].avrGrade();
+            if(students[i].averageGrade() > bestAvrGrades) {
+                bestAvrGrades = students[i].averageGrade();
                 studentIndex = i;
             }
         }
@@ -80,21 +85,21 @@ public class Main {
         Rectangle[] rectangles = new Rectangle[2];
 
         System.out.println("\n-----------------------------");
-        System.out.println(" Enter the width of the first rectangle : ");
+        System.out.print(" Enter the width of the first rectangle : ");
         double width1 = cin.nextDouble();
-        System.out.println(" Enter the height of the first rectangle : ");
+        System.out.print(" Enter the height of the first rectangle : ");
         double height1 = cin.nextDouble();
         System.out.println("-----------------------------\n");
         rectangles[0] = new Rectangle(width1, height1);
 
         System.out.println("\n-------------------------");
-        System.out.println(" Enter the side of the rectangle : ");
-        double lenght = cin.nextDouble();
+        System.out.print(" Enter the side of the rectangle : ");
+        double length = cin.nextDouble();
         System.out.println("-------------------------\n");
-        rectangles[1] = new Rectangle(lenght);
+        rectangles[1] = new Rectangle(length);
 
         for(int i = 0; i < rectangles.length; i++) {
-            rectangles[i].getRectangeInfo();
+            rectangles[i].getRectangleInfo();
         }
         cin.close();
     }

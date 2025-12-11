@@ -8,9 +8,9 @@ public class Rectangle {
         this.height = 1;
     }
 
-    public Rectangle(double lenght) {
-        this.width = lenght;
-        this.height = lenght;
+    public Rectangle(double length) {
+        this.width = length;
+        this.height = length;
     }
 
     public Rectangle(double width, double height) {
@@ -19,8 +19,7 @@ public class Rectangle {
     }
 
     public boolean isSquare() {
-        if(width == height) { return true; }
-        return false;
+        return width == height;
     }
 
     public double getPerimeter() {
@@ -41,7 +40,7 @@ public class Rectangle {
     }
     public double getHeight() { return height; }
 
-    public void getRectangeInfo() {
+    public void getRectangleInfo() {
         System.out.println("\n--------------------------------");
         System.out.println(" Width is " + width + ".");
         System.out.println(" Height is " + height + ".");
