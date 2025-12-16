@@ -34,4 +34,7 @@ void *deque_list_peek_back(const DequeList *deque);
 
 void deque_list_clear(DequeList *deque);
 
+void deque_list_print(const DequeList *deque, void (*print_func)(void *data));
+void *deque_list_get(DequeList *deque, size_t position);
+
 #endif
