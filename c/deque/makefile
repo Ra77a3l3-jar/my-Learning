@@ -16,8 +16,8 @@ SRCS    := $(wildcard $(SRCDIR)/*.c)
 OBJS    := $(patsubst $(SRCDIR)/%.c, $(BUILDDIR)/%.o, $(SRCS))
 
 # Test file
-TEST    = testDequeList.c
-TESTOBJ = $(BUILDDIR)/testDequeList.o
+TEST    = testDequeArr.c
+TESTOBJ = $(BUILDDIR)/testDequeArr.o
 
 # Default build type
 all: debug
