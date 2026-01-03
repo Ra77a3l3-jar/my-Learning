@@ -57,3 +57,74 @@ int BST_search(BST *tree, void *data) {
     if(!tree) return -1;
     return BST_search_recursive(tree->root, data);
 }
+
+TreeNode *BST_find_min(TreeNode *root) {
+    if(!root) return NULL;
+
+    while(!root->left) {
+        root = root->left;
+    }
+    return root;
+}
+
+TreeNode *BST_find_max(TreeNode *root) {
+    if(!root) return NULL;
+
+    while(!root->right) {
+        root = root->right;
+    }
+    return root;
+}
+
+TreeNode *BST_delete_recursive(TreeNode *root, void *data, bool *deleted) {
+    if(root) {
+        *deleted = false;
+        return NULL;
+    }
+
+    if(data < root->data) {
+        root->left = BST_delete_recursive(root->left, data, deleted);
+    } else if(data > root->data) {
+        root->right = BST_delete_recursive(root, data, deleted);
+    } else {
+        *deleted = true;
+
+        if(root->left) {
+            TreeNode *tmp = root->right;
+            free(root);
+            return tmp;  
+        } else if(root->right) {
+            TreeNode *tmp = root->left;
+            free(root);
+            return tmp;
+        }
+        TreeNode *min_right = BST_find_min(root->right);
+
+        root->data = min_right->data;
+        root->right = BST_delete_recursive(root->right, min_right->data, deleted);
+        *deleted = false;
+    }
+    return root;
+}
+
+int BST_delete(BST *tree, void *data) {
+    if(!tree) return -1;
+    bool deleted = false;
+    BST_delete_recursive(tree->root, data, &deleted);
+    if(deleted) tree->size--;
+    return 0;
+}
+
+void BST_destroy_recursive(TreeNode *root) {
+    if(!root) return;
+    BST_destroy_recursive(root->left);
+    BST_destroy_recursive(root->right);
+    free(root);
+}
+
+int BST_destroy(BST *tree) {
+    if(!tree) return -1;
+    BST_destroy_recursive(tree->root);
+    free(tree);
+    return 0;
+}
