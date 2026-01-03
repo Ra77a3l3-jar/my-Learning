@@ -33,4 +33,7 @@ TreeNode *BST_find_max(TreeNode *root);
 TreeNode *BST_delete_recursive(TreeNode *root, void *data, bool *deleted);
 int BST_delete(BST *tree, void *data);
 
+void BST_destroy_recursive(TreeNode *root);
+int BST_destroy(BST *tree);
+
 #endif
